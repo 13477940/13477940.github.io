@@ -20,7 +20,7 @@
 					$("div[ui_key=btn_a]").on("click", function(){
 						$("textarea[ui_key=result_a]").val("");
 						var value = $("textarea[ui_key=input_a]").val().trim();
-						var res = base64_encode(value);
+						var res = base64.encode(value);
 						$("textarea[ui_key=result_a]").val(res);
 					});
 				})();
@@ -28,7 +28,7 @@
 					$("div[ui_key=btn_b]").on("click", function(){
 						$("textarea[ui_key=result_b]").val("");
 						var value = $("textarea[ui_key=input_b]").val().trim();
-						var res = base64_decode(value);
+						var res = base64.decode.string(value);
 						$("textarea[ui_key=result_b]").val(res);
 					});
 				})();
