@@ -11,14 +11,68 @@
 			body { font-size: 16px; }
 		</style>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="base64.js"></script>
 		<script>
+			'use strict';
 			$(function(){
-				console.log("test");
+				(()=>{
+					$("div[ui_key=btn_a]").on("click", function(){
+						$("textarea[ui_key=result_a]").val("");
+						var value = $("input[ui_key=input_a]").val().trim();
+						var res = base64.urlEncode(value);
+						$("textarea[ui_key=result_a]").val(res);
+					});
+				})();
+				(()=>{
+					$("div[ui_key=btn_b]").on("click", function(){
+						$("textarea[ui_key=result_b]").val("");
+						var value = $("input[ui_key=input_b]").val().trim();
+						var res = base64.urlDecode(value);
+						$("textarea[ui_key=result_b]").val(res);
+					});
+				})();
 			});
 		</script>
 	</head>
 	<body>
-		<div style="font-size: 1.2rem;line-height: 1.4rem;color: orange;">This is testing.</div>
-		<div><img src="/testsvg.svg" style="height: 30px;"></div>
+		<div>
+			<div>string to base64-urlencode</div>
+			<div style="height: 10px;"></div>
+			<div style="display: flex;align-items: center;">
+				<div style="width: 200px;flex-shrink: 1;">
+					<input ui_key="input_a" style="width: 100%;font-size: 1rem;line-height: 1.2rem;">
+				</div>
+				<div style="width: 30px;flex-shrink: 1;"></div>
+				<div>
+					<div ui_key="btn_a" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+				</div>
+			</div>
+			<div style="height: 10px;"></div>
+			<div>
+				<textarea ui_key="result_a" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;resize: none;"></textarea>
+			</div>
+		</div>
+		<div>
+			<div style="height: 10px;"></div>
+			<div style="height: 2px;background-color: #ccc;"></div>
+			<div style="height: 10px;"></div>
+		</div>
+		<div>
+			<div>base64-urlencode to string</div>
+			<div style="height: 10px;"></div>
+			<div style="display: flex;align-items: center;">
+				<div style="width: 200px;flex-shrink: 1;">
+					<input ui_key="input_b" style="width: 100%;font-size: 1rem;line-height: 1.2rem;">
+				</div>
+				<div style="width: 30px;flex-shrink: 1;"></div>
+				<div>
+					<div ui_key="btn_b" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+				</div>
+			</div>
+			<div style="height: 10px;"></div>
+			<div>
+				<textarea ui_key="result_b" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;resize: none;"></textarea>
+			</div>
+		</div>
     </body>
 </html>
