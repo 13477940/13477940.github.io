@@ -44,6 +44,22 @@
 						$("textarea[ui_key=result_c]").val(hash);
 					});
 				})();
+				(()=>{
+					$("div[ui_key=btn_d]").on("click", function(){
+						$("textarea[ui_key=result_d]").val("");
+						var value = $("textarea[ui_key=input_d]").val().trim();
+						var res = value.toUpperCase();
+						$("textarea[ui_key=result_d]").val(res);
+					});
+				})();
+				(()=>{
+					$("div[ui_key=btn_e]").on("click", function(){
+						$("textarea[ui_key=result_e]").val("");
+						var value = $("textarea[ui_key=input_e]").val().trim();
+						var res = value.toLowerCase();
+						$("textarea[ui_key=result_e]").val(res);
+					});
+				})();
 			});
 		</script>
 	</head>
@@ -120,6 +136,58 @@
 				<div style="height: 10px;"></div>
 				<div>
 					<textarea ui_key="result_c" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;resize: none;"></textarea>
+				</div>
+			</div>
+			<div>
+				<div style="height: 30px;"></div>
+				<div style="height: 2px;background-color: #ccc;"></div>
+				<div style="height: 30px;"></div>
+			</div>
+			<div>
+				<div>string to UpperCase</div>
+				<div style="height: 10px;"></div>
+				<div>raw</div>
+				<div style="height: 10px;"></div>
+				<div style="display: flex;align-items: center;">
+					<div style="flex-shrink: 1;">
+						<textarea ui_key="input_d" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+					</div>
+					<div style="width: 30px;flex-shrink: 1;"></div>
+					<div>
+						<div ui_key="btn_d" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+					</div>
+				</div>
+				<div style="height: 30px;"></div>
+				<div>result</div>
+				<div style="height: 10px;"></div>
+				<div>
+					<textarea ui_key="result_d" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;resize: none;"></textarea>
+				</div>
+			</div>
+			<div>
+				<div style="height: 30px;"></div>
+				<div style="height: 2px;background-color: #ccc;"></div>
+				<div style="height: 30px;"></div>
+			</div>
+			<div>
+				<div>string to LowerCase</div>
+				<div style="height: 10px;"></div>
+				<div>raw</div>
+				<div style="height: 10px;"></div>
+				<div style="display: flex;align-items: center;">
+					<div style="flex-shrink: 1;">
+						<textarea ui_key="input_e" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+					</div>
+					<div style="width: 30px;flex-shrink: 1;"></div>
+					<div>
+						<div ui_key="btn_e" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+					</div>
+				</div>
+				<div style="height: 30px;"></div>
+				<div>result</div>
+				<div style="height: 10px;"></div>
+				<div>
+					<textarea ui_key="result_e" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;resize: none;"></textarea>
 				</div>
 			</div>
 		</div>
