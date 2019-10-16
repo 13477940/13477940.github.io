@@ -1,3 +1,4 @@
+// https://simplycalc.com/base64-source.php
 /*
  * JavaScript base64 / base64url encoder and decoder
  */
