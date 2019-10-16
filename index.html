@@ -12,6 +12,7 @@
 		</style>
 		<script src="jquery.min.js"></script>
 		<script src="base64.js"></script>
+		<script src="sha256.min.js"></script>
 		<script>
 			'use strict';
 			$(function(){
@@ -29,6 +30,18 @@
 						var value = $("textarea[ui_key=input_b]").val().trim();
 						var res = base64_decode(value);
 						$("textarea[ui_key=result_b]").val(res);
+					});
+				})();
+				(()=>{
+					$("div[ui_key=btn_c]").on("click", function(){
+						$("textarea[ui_key=result_c]").val("");
+						var value = $("textarea[ui_key=input_c]").val().trim();
+						var hash = sha256.create();
+						(()=>{
+							hash.update(value);
+							hash.hex();
+						})();
+						$("textarea[ui_key=result_c]").val(hash);
 					});
 				})();
 			});
@@ -58,9 +71,9 @@
 				</div>
 			</div>
 			<div>
-				<div style="height: 10px;"></div>
+				<div style="height: 30px;"></div>
 				<div style="height: 2px;background-color: #ccc;"></div>
-				<div style="height: 10px;"></div>
+				<div style="height: 30px;"></div>
 			</div>
 			<div>
 				<div>base64-urlencode to string</div>
@@ -81,6 +94,32 @@
 				<div style="height: 10px;"></div>
 				<div>
 					<textarea ui_key="result_b" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;resize: none;"></textarea>
+				</div>
+			</div>
+			<div>
+				<div style="height: 30px;"></div>
+				<div style="height: 2px;background-color: #ccc;"></div>
+				<div style="height: 30px;"></div>
+			</div>
+			<div>
+				<div>string to SHA-256</div>
+				<div style="height: 10px;"></div>
+				<div>raw</div>
+				<div style="height: 10px;"></div>
+				<div style="display: flex;align-items: center;">
+					<div style="flex-shrink: 1;">
+						<textarea ui_key="input_c" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+					</div>
+					<div style="width: 30px;flex-shrink: 1;"></div>
+					<div>
+						<div ui_key="btn_c" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+					</div>
+				</div>
+				<div style="height: 30px;"></div>
+				<div>result</div>
+				<div style="height: 10px;"></div>
+				<div>
+					<textarea ui_key="result_c" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;resize: none;"></textarea>
 				</div>
 			</div>
 		</div>
