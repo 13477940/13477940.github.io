@@ -74,9 +74,15 @@
 		<script src="sha256.min.js"></script>
 		<script>
 			'use strict';
-			$(function(){
+			$(()=>{
+				var durationTimer = {};
 				(()=>{
-					$("div[ui_key=btn_a]").on("click", function(){
+					$("div[ui_key=btn_a]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
 						$("textarea[ui_key=result_a]").val("");
 						var value = $("textarea[ui_key=input_a]").val().trim();
 						var res = url_safe_withoutPadding( base64.encode( value ) );
@@ -88,7 +94,12 @@
 					}
 				})();
 				(()=>{
-					$("div[ui_key=btn_b]").on("click", function(){
+					$("div[ui_key=btn_b]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
 						$("textarea[ui_key=result_b]").val("");
 						var value = $("textarea[ui_key=input_b]").val().trim();
 						var res = base64.decode.string( value );
@@ -96,7 +107,12 @@
 					});
 				})();
 				(()=>{
-					$("div[ui_key=btn_c]").on("click", function(){
+					$("div[ui_key=btn_c]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
 						$("textarea[ui_key=result_c]").val("");
 						var value = $("textarea[ui_key=input_c]").val().trim();
 						var hash = sha256.create();
@@ -108,7 +124,12 @@
 					});
 				})();
 				(()=>{
-					$("div[ui_key=btn_d]").on("click", function(){
+					$("div[ui_key=btn_d]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
 						$("textarea[ui_key=result_d]").val("");
 						var value = $("textarea[ui_key=input_d]").val().trim();
 						var res = value.toUpperCase();
@@ -116,7 +137,12 @@
 					});
 				})();
 				(()=>{
-					$("div[ui_key=btn_e]").on("click", function(){
+					$("div[ui_key=btn_e]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
 						$("textarea[ui_key=result_e]").val("");
 						var value = $("textarea[ui_key=input_e]").val().trim();
 						var res = value.toLowerCase();
@@ -125,15 +151,15 @@
 				})();
 				// raw keyup
 				(()=>{
-					var timer = null;
 					$("textarea[ui_type=raw_zone]").on("keyup", (event)=>{
-						clearTimeout(timer);
-						var keyCode = event.keyCode;
 						var targetElem = $(event.currentTarget);
+						var ui_key = targetElem.attr("ui_key");
+						if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						var keyCode = event.keyCode;
 						if("13" == keyCode) {
 							targetElem.parent().parent().find("div[ui_type=button]").click();
 						} else {
-							timer = setTimeout(()=>{
+							durationTimer[ui_key] = setTimeout(()=>{
 								targetElem.parent().parent().find("div[ui_type=button]").click();
 							}, 8000);
 						}
