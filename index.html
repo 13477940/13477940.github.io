@@ -123,6 +123,22 @@
 						$("textarea[ui_key=result_e]").val(res);
 					});
 				})();
+				// raw keyup
+				(()=>{
+					var timer = null;
+					$("textarea[ui_type=raw_zone]").on("keyup", (e)=>{
+						clearTimeout(timer);
+						var keyCode = e.keyCode;
+						var targetElem = $(this);
+						if("13" == keyCode) {
+							targetElem.parent().parent().find("div[ui_type=button]").click();
+						} else {
+							timer = setTimeout(()=>{
+								targetElem.parent().parent().find("div[ui_type=button]").click();
+							}, 8000);
+						}
+					});
+				})();
 			});
 		</script>
 	</head>
