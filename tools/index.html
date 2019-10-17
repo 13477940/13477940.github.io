@@ -5,7 +5,6 @@
 		<meta name="description" content="JavaScript Base64 URL-Safe & SHA-256">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>Base64 URL-Safe & SHA-256｜JavaScript</title>
-		<!-- <link rel=stylesheet href="" /> -->
 		<style>
 			* {
 				margin: 0px;
@@ -70,8 +69,9 @@
 			}
 		</style>
 		<script src="js/jquery/jquery.min.js"></script>
-		<script src="js/emn178/base64.js"></script>
-		<script src="js/emn178/sha256.min.js"></script>
+		<script src="js/cryptojs/core.min.js"></script>
+		<script src="js/cryptojs/base64.min.js"></script>
+		<script src="js/cryptojs/sha256.min.js"></script>
 		<script>
 			'use strict';
 			$(()=>{
@@ -85,12 +85,16 @@
 						})();
 						$("textarea[ui_key=result_a]").val("");
 						var value = $("textarea[ui_key=input_a]").val().trim();
-						var res = url_safe_withoutPadding( base64.encode( value ) );
+						var res = null;
+						(()=>{
+							var byteArr = CryptoJS.enc.Utf8.parse(value);
+							res = withoutPadding( CryptoJS.enc.Base64.stringify(byteArr) );
+						})();
 						$("textarea[ui_key=result_a]").val(res);
 					});
 					// https://jsfiddle.net/magikMaker/7bjaT/
-					function url_safe_withoutPadding(str){
-					    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+					function withoutPadding(str){
+					    return str.replace(/\=+$/, '');
 					}
 				})();
 				(()=>{
@@ -102,7 +106,11 @@
 						})();
 						$("textarea[ui_key=result_b]").val("");
 						var value = $("textarea[ui_key=input_b]").val().trim();
-						var res = base64.decode.string( value );
+						var res = null;
+						(()=>{
+							var byteArr = CryptoJS.enc.Base64.parse(value);
+							res = byteArr.toString(CryptoJS.enc.Utf8);
+						})();
 						$("textarea[ui_key=result_b]").val(res);
 					});
 				})();
@@ -115,12 +123,11 @@
 						})();
 						$("textarea[ui_key=result_c]").val("");
 						var value = $("textarea[ui_key=input_c]").val().trim();
-						var hash = sha256.create();
+						var res = null;
 						(()=>{
-							hash.update(value);
-							hash.hex();
+							res = CryptoJS.SHA256(value).toString(CryptoJS.enc.Hex);
 						})();
-						$("textarea[ui_key=result_c]").val(hash);
+						$("textarea[ui_key=result_c]").val(res);
 					});
 				})();
 				(()=>{
@@ -173,7 +180,7 @@
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to Base64</div>
-					<div>（URL Safe；</div>
+					<div>（URL-Safe；withoutPadding；</div>
 					<div><a href="https://tools.ietf.org/html/rfc3548" style="color: #ff8000;text-decoration: none;">RFC_3548</a></div>
 					<div>）</div>
 				</div>
