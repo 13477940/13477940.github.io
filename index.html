@@ -7,8 +7,46 @@
 		<title>MyTesting</title>
 		<!-- <link rel=stylesheet href="" /> -->
 		<style>
-			* { margin: 0px;padding: 0px; }
-			body { font-size: 16px; }
+			* {
+				margin: 0px;
+				padding: 0px;
+			}
+			body {
+				font-size: 16px;
+			}
+			div[ui_type=raw_zone] {
+				width: 50vw;
+				height: 200px;
+				word-break: break-all;
+				font-size: 1rem;
+				line-height: 1.2rem;
+				letter-spacing: 1px;
+				resize: none;
+				color: #333;
+			}
+			div[ui_type=result_zone] {
+				width: 50vw;
+				height: 200px;
+				word-break: break-all;
+				font-size: 1rem;
+				line-height: 1.2rem;
+				letter-spacing: 1px;
+				resize: none;
+				color: #333;
+				background-color: rgb(245,245,245);
+			}
+			div[ui_type=button] {
+				border: 2px solid #ff8000;
+				color: #333;
+				font-size: 1rem;
+				line-height: 1.2rem;
+				letter-spacing: 1px;
+				cursor: pointer;
+			}
+			div[ui_type=button]:hover {
+				color: #fff;
+				background-color: #ff8000;
+			}
 		</style>
 		<script src="jquery.min.js"></script>
 		<script src="base64.js"></script>
@@ -20,11 +58,11 @@
 					$("div[ui_key=btn_a]").on("click", function(){
 						$("textarea[ui_key=result_a]").val("");
 						var value = $("textarea[ui_key=input_a]").val().trim();
-						var res = Base64EncodeUrlWithoutPadding( base64.encode( value ) );
+						var res = url_safe_withoutPadding( base64.encode( value ) );
 						$("textarea[ui_key=result_a]").val(res);
 					});
 					// https://jsfiddle.net/magikMaker/7bjaT/
-					function Base64EncodeUrlWithoutPadding(str){
+					function url_safe_withoutPadding(str){
 					    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
 					}
 				})();
@@ -72,32 +110,32 @@
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to Base64</div>
-					<div>(URL Safe,</div>
-					<div><a href="https://tools.ietf.org/html/rfc3548" style="color: blue;text-decoration: none;">RFC_3548</a></div>
-					<div>)</div>
+					<div>（URL Safe；</div>
+					<div><a href="https://tools.ietf.org/html/rfc3548" style="color: #ff8000;text-decoration: none;">RFC_3548</a></div>
+					<div>）</div>
 				</div>
 				<div style="height: 10px;"></div>
 				<div>raw</div>
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
 					<div style="flex-shrink: 1;">
-						<textarea ui_key="input_a" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+						<textarea ui_key="input_a" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
 					<div>
-						<div ui_key="btn_a" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+						<div ui_key="btn_a" ui_type="button">run</div>
 					</div>
 				</div>
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
 				<div>
-					<textarea ui_key="result_a" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;background-color: #ddd;"></textarea>
+					<textarea ui_key="result_a" ui_type="result_zone"></textarea>
 				</div>
 			</div>
 			<div>
 				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ccc;"></div>
+				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
 			<div>
@@ -107,23 +145,23 @@
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
 					<div style="flex-shrink: 1;">
-						<textarea ui_key="input_b" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+						<textarea ui_key="input_b" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
 					<div>
-						<div ui_key="btn_b" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+						<div ui_key="btn_b" ui_type="button">run</div>
 					</div>
 				</div>
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
 				<div>
-					<textarea ui_key="result_b" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;background-color: #ddd;"></textarea>
+					<textarea ui_key="result_b" ui_type="result_zone"></textarea>
 				</div>
 			</div>
 			<div>
 				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ccc;"></div>
+				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
 			<div>
@@ -133,23 +171,23 @@
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
 					<div style="flex-shrink: 1;">
-						<textarea ui_key="input_c" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+						<textarea ui_key="input_c" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
 					<div>
-						<div ui_key="btn_c" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+						<div ui_key="btn_c" ui_type="button">run</div>
 					</div>
 				</div>
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
 				<div>
-					<textarea ui_key="result_c" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;background-color: #ddd;"></textarea>
+					<textarea ui_key="result_c" ui_type="result_zone"></textarea>
 				</div>
 			</div>
 			<div>
 				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ccc;"></div>
+				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
 			<div>
@@ -159,23 +197,23 @@
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
 					<div style="flex-shrink: 1;">
-						<textarea ui_key="input_d" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+						<textarea ui_key="input_d" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
 					<div>
-						<div ui_key="btn_d" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+						<div ui_key="btn_d" ui_type="button">run</div>
 					</div>
 				</div>
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
 				<div>
-					<textarea ui_key="result_d" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;background-color: #ddd;"></textarea>
+					<textarea ui_key="result_d" ui_type="result_zone"></textarea>
 				</div>
 			</div>
 			<div>
 				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ccc;"></div>
+				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
 			<div>
@@ -185,18 +223,18 @@
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
 					<div style="flex-shrink: 1;">
-						<textarea ui_key="input_e" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;"></textarea>
+						<textarea ui_key="input_e" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
 					<div>
-						<div ui_key="btn_e" style="border: 1px solid #ccc;border-radius: 3px;padding: 15px;cursor: pointer;">run</div>
+						<div ui_key="btn_e" ui_type="button">run</div>
 					</div>
 				</div>
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
 				<div>
-					<textarea ui_key="result_e" style="width: 50vw;height: 200px;word-break: break-all;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;resize: none;background-color: #ddd;"></textarea>
+					<textarea ui_key="result_e" ui_type="result_zone"></textarea>
 				</div>
 			</div>
 			<div style="height: 60px;"></div>
