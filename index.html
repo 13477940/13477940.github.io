@@ -127,6 +127,7 @@
 				(()=>{
 					var timer = null;
 					$("textarea[ui_type=raw_zone]").on("keyup", (e)=>{
+						console.log(e);
 						clearTimeout(timer);
 						var keyCode = e.keyCode;
 						var targetElem = $(this);
