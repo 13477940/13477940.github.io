@@ -31,7 +31,8 @@
 					$("div[ui_key=btn_b]").on("click", function(){
 						$("textarea[ui_key=result_b]").val("");
 						var value = $("textarea[ui_key=input_b]").val().trim();
-						var res = base64.decode.string( Base64DecodeUrl( value ) );
+						console.log(Base64DecodeUrl( value ));
+						var res = base64.decode.string( value );
 						$("textarea[ui_key=result_b]").val(res);
 					});
 					function Base64DecodeUrl(str){
