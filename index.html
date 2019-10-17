@@ -20,17 +20,24 @@
 					$("div[ui_key=btn_a]").on("click", function(){
 						$("textarea[ui_key=result_a]").val("");
 						var value = $("textarea[ui_key=input_a]").val().trim();
-						var res = base64.encode(value);
+						var res = Base64EncodeUrl( base64.encode( value ) );
 						$("textarea[ui_key=result_a]").val(res);
 					});
+					function Base64EncodeUrl(str){
+					    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+					}
 				})();
 				(()=>{
 					$("div[ui_key=btn_b]").on("click", function(){
 						$("textarea[ui_key=result_b]").val("");
 						var value = $("textarea[ui_key=input_b]").val().trim();
-						var res = base64.decode.string(value);
+						var res = base64.decode.string( Base64DecodeUrl( value ) );
 						$("textarea[ui_key=result_b]").val(res);
 					});
+					function Base64DecodeUrl(str){
+					    str = (str + '===').slice(0, str.length + (str.length % 4));
+					    return str.replace(/-/g, '+').replace(/_/g, '/');
+					}
 				})();
 				(()=>{
 					$("div[ui_key=btn_c]").on("click", function(){
