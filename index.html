@@ -14,26 +14,42 @@
 			body {
 				font-size: 16px;
 			}
-			div[ui_type=raw_zone] {
+			div[ui_type=raw_zone_wrap] {
 				width: 50vw;
-				height: 200px;
-				word-break: break-all;
-				font-size: 1rem;
-				line-height: 1.2rem;
-				letter-spacing: 1px;
-				resize: none;
-				color: #333;
+				height: 180px;
+				padding: 20px;
+				border: 1px solid #333;
 			}
-			div[ui_type=result_zone] {
+			div[ui_type=result_zone_wrap] {
 				width: 50vw;
-				height: 200px;
+				height: 180px;
+				padding: 20px;
+				background-color: rgb(245,245,245);
+				border: 1px solid #ff8000;
+			}
+			textarea[ui_type=raw_zone] {
+				width: 100%;
+				height: 100%;
 				word-break: break-all;
 				font-size: 1rem;
 				line-height: 1.2rem;
 				letter-spacing: 1px;
 				resize: none;
 				color: #333;
-				background-color: rgb(245,245,245);
+				border: none;
+				background: none;
+			}
+			textarea[ui_type=result_zone] {
+				width: 100%;
+				height: 100%;
+				word-break: break-all;
+				font-size: 1rem;
+				line-height: 1.2rem;
+				letter-spacing: 1px;
+				resize: none;
+				color: #333;
+				border: none;
+				background: none;
 			}
 			div[ui_type=button] {
 				border: 2px solid #ff8000;
@@ -42,6 +58,8 @@
 				line-height: 1.2rem;
 				letter-spacing: 1px;
 				cursor: pointer;
+				padding: 15px 25px;
+				border-radius: 4px;
 			}
 			div[ui_type=button]:hover {
 				color: #fff;
@@ -118,7 +136,7 @@
 				<div>raw</div>
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
-					<div style="flex-shrink: 1;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
 						<textarea ui_key="input_a" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
@@ -129,7 +147,7 @@
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
-				<div>
+				<div ui_type="result_zone_wrap">
 					<textarea ui_key="result_a" ui_type="result_zone"></textarea>
 				</div>
 			</div>
@@ -144,7 +162,7 @@
 				<div>raw</div>
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
-					<div style="flex-shrink: 1;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
 						<textarea ui_key="input_b" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
@@ -155,7 +173,7 @@
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
-				<div>
+				<div ui_type="result_zone_wrap">
 					<textarea ui_key="result_b" ui_type="result_zone"></textarea>
 				</div>
 			</div>
@@ -170,7 +188,7 @@
 				<div>raw</div>
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
-					<div style="flex-shrink: 1;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
 						<textarea ui_key="input_c" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
@@ -181,7 +199,7 @@
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
-				<div>
+				<div ui_type="result_zone_wrap">
 					<textarea ui_key="result_c" ui_type="result_zone"></textarea>
 				</div>
 			</div>
@@ -196,7 +214,7 @@
 				<div>raw</div>
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
-					<div style="flex-shrink: 1;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
 						<textarea ui_key="input_d" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
@@ -207,7 +225,7 @@
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
-				<div>
+				<div ui_type="result_zone_wrap">
 					<textarea ui_key="result_d" ui_type="result_zone"></textarea>
 				</div>
 			</div>
@@ -222,7 +240,7 @@
 				<div>raw</div>
 				<div style="height: 10px;"></div>
 				<div style="display: flex;align-items: center;">
-					<div style="flex-shrink: 1;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
 						<textarea ui_key="input_e" ui_type="raw_zone"></textarea>
 					</div>
 					<div style="width: 30px;flex-shrink: 1;"></div>
@@ -233,7 +251,7 @@
 				<div style="height: 30px;"></div>
 				<div>result</div>
 				<div style="height: 10px;"></div>
-				<div>
+				<div ui_type="result_zone_wrap">
 					<textarea ui_key="result_e" ui_type="result_zone"></textarea>
 				</div>
 			</div>
