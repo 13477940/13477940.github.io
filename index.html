@@ -126,11 +126,11 @@
 				// raw keyup
 				(()=>{
 					var timer = null;
-					$("textarea[ui_type=raw_zone]").on("keyup", (e)=>{
-						console.log(e);
+					$("textarea[ui_type=raw_zone]").on("keyup", (event)=>{
 						clearTimeout(timer);
-						var keyCode = e.keyCode;
+						var keyCode = event.keyCode;
 						var targetElem = $(this);
+						console.log(targetElem);
 						if("13" == keyCode) {
 							targetElem.parent().parent().find("div[ui_type=button]").click();
 						} else {
