@@ -108,11 +108,14 @@
 						var value = $("textarea[ui_key=input_b]").val().trim();
 						var res = null;
 						(()=>{
-							var byteArr = CryptoJS.enc.Base64.parse(value);
+							var byteArr = CryptoJS.enc.Base64.parse( decode_url_safe( value ) );
 							res = byteArr.toString(CryptoJS.enc.Utf8);
 						})();
 						$("textarea[ui_key=result_b]").val(res);
 					});
+					function decode_url_safe(str){
+						return str.replace(/-/g, '+').replace(/_/g, '/');
+					}
 				})();
 				(()=>{
 					$("div[ui_key=btn_c]").on("click", (event)=>{
