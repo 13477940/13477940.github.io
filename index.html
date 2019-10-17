@@ -130,11 +130,12 @@
 						clearTimeout(timer);
 						var keyCode = event.keyCode;
 						var targetElem = $(this);
-						console.log(targetElem);
+						console.log(event);
 						if("13" == keyCode) {
 							targetElem.parent().parent().find("div[ui_type=button]").click();
 						} else {
 							timer = setTimeout(()=>{
+								console.log(targetElem.parent().parent().find("div[ui_type=button]"));
 								targetElem.parent().parent().find("div[ui_type=button]").click();
 							}, 8000);
 						}
