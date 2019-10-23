@@ -22,6 +22,7 @@ import java.util.Formatter;
  * https://my.oschina.net/leaforbook/blog/1808360
  * http://ijecorp.blogspot.com/2013/08/python-m2crypto-aes-encrypt-decrypt.html
  * https://stackoverflow.com/questions/36909746/aes-ctr-encrypt-in-go-and-decrypt-in-cryptojs
+ * https://crypto.stackexchange.com/questions/19280/is-there-any-area-where-aes-cbc-cannot-be-used-if-so-why
  * 由以上參考資料擷取多處程式碼與原理撰寫
  *
  * 191023
