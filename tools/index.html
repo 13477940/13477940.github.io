@@ -72,6 +72,16 @@
 		<script src="js/cryptojs/core.min.js"></script>
 		<script src="js/cryptojs/base64.min.js"></script>
 		<script src="js/cryptojs/sha256.min.js"></script>
+		<!-- 引用順序要注意才能正常載入功能 -->
+		<script src="js/cryptojs/aes/enc-base64.min.js"></script>
+		<script src="js/cryptojs/aes/hmac.min.js"></script>
+		<script src="js/cryptojs/aes/md5.min.js"></script>
+		<script src="js/cryptojs/aes/sha1.min.js"></script>
+		<script src="js/cryptojs/aes/enc-utf8.min.js"></script>
+		<script src="js/cryptojs/aes/evpkdf.min.js"></script>
+		<script src="js/cryptojs/aes/cipher-core.min.js"></script>
+		<script src="js/cryptojs/aes/mode-ctr.min.js"></script>
+		<script src="js/cryptojs/aes/aes.min.js"></script>
 		<script>
 			'use strict';
 			$(()=>{
@@ -93,7 +103,7 @@
 						$("textarea[ui_key=result_a]").val(res);
 					});
 					// https://jsfiddle.net/magikMaker/7bjaT/
-					function url_safe_withoutPadding(str){
+					function url_safe_withoutPadding(str) {
 					    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
 					}
 				})();
@@ -114,7 +124,7 @@
 						$("textarea[ui_key=result_b]").val(res);
 					});
 					// https://jsfiddle.net/magikMaker/7bjaT/
-					function decode_url_safe(str){
+					function decode_url_safe(str) {
 						return str.replace(/-/g, '+').replace(/_/g, '/');
 					}
 				})();
@@ -176,6 +186,63 @@
 						}
 					});
 				})();
+				// AES Encrypt
+				(()=>{
+					$("div[ui_key=btn_aes_encrypt]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
+						$("textarea[ui_key=result_aes_encrypt]").val("");
+						var value = $("textarea[ui_key=input_aes_encrypt]").val().trim();
+						var privateKey = $("input[ui_key=aes_encrypt_key]").val();
+						var res = encrypt_AES_256(value, privateKey);
+						$("textarea[ui_key=result_aes_encrypt]").val(res);
+					});
+					function encrypt_AES_256(content, privateKey) {
+						var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
+						var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
+						var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
+						// var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+						var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
+						var encrypt = CryptoJS.AES.encrypt(content, key, options);
+						var base64str = url_safe_withoutPadding( encrypt.toString() );
+						return base64str;
+					}
+					function url_safe_withoutPadding(str) {
+					    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+					}
+				})();
+				// AES Decrypt
+				(()=>{
+					$("div[ui_key=btn_aes_decrypt]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
+						$("textarea[ui_key=result_aes_decrypt]").val("");
+						var value = $("textarea[ui_key=input_aes_decrypt]").val().trim();
+						var privateKey = $("input[ui_key=aes_decrypt_key]").val();
+						var res = decrypt_AES_256(value, privateKey);
+						$("textarea[ui_key=result_aes_decrypt]").val(res);
+					});
+					function decrypt_AES_256(content, privateKey) {
+						var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
+						var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
+						var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
+						// var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+						var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
+						var encrypted = decode_url_safe(content);
+						var decrypt = CryptoJS.AES.decrypt(encrypted, key, options);
+						var res = CryptoJS.enc.Utf8.stringify(decrypt);
+						return res;
+					}
+					function decode_url_safe(str) {
+						return str.replace(/-/g, '+').replace(/_/g, '/');
+					}
+				})();
 			});
 		</script>
 	</head>
@@ -185,7 +252,7 @@
 				<div style="display: flex;align-items: center;">
 					<div style="display: flex;align-items: center;">
 						<div>String to</div>
-						<div style="width: 1rem;"></div>
+						<div style="width: 0.7rem;"></div>
 						<div style="color: #ff8000;">Base64</div>
 					</div>
 					<div>（URL-Safe；withoutPadding；</div>
@@ -219,7 +286,7 @@
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div style="color: #ff8000;">Base64</div>
-					<div style="width: 1rem;"></div>
+					<div style="width: 0.7rem;"></div>
 					<div>to String</div>
 				</div>
 				<div style="height: 10px;"></div>
@@ -249,7 +316,7 @@
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to</div>
-					<div style="width: 1rem;"></div>
+					<div style="width: 0.7rem;"></div>
 					<div style="color: #ff8000;">SHA-256</div>
 				</div>
 				<div style="height: 10px;"></div>
@@ -279,7 +346,7 @@
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to</div>
-					<div style="width: 1rem;"></div>
+					<div style="width: 0.7rem;"></div>
 					<div style="color: #ff8000;">UpperCase</div>
 				</div>
 				<div style="height: 10px;"></div>
@@ -309,7 +376,7 @@
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to</div>
-					<div style="width: 1rem;"></div>
+					<div style="width: 0.7rem;"></div>
 					<div style="color: #ff8000;">LowerCase</div>
 				</div>
 				<div style="height: 10px;"></div>
@@ -329,6 +396,74 @@
 				<div style="height: 10px;"></div>
 				<div ui_type="result_zone_wrap">
 					<textarea ui_key="result_e" ui_type="result_zone"></textarea>
+				</div>
+			</div>
+			<div>
+				<div style="height: 30px;"></div>
+				<div style="height: 2px;background-color: #ff8000;"></div>
+				<div style="height: 30px;"></div>
+			</div>
+			<div>
+				<div style="display: flex;align-items: center;">
+					<div>String to</div>
+					<div style="width: 0.7rem;"></div>
+					<div style="color: #ff8000;">AES-256-CTR</div>
+					<div style="width: 0.7rem;"></div>
+					<div>｜PrivateKey：</div>
+					<div><input ui_key="aes_encrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;"></div>
+					<div style="width: 0.7rem;"></div>
+					<div>｜JavaCode：<a href="demo/java/StandardAesEncryptDemo.java" style="color: #ff8000;text-decoration: none;">file</a></div>
+				</div>
+				<div style="height: 10px;"></div>
+				<div>raw</div>
+				<div style="height: 10px;"></div>
+				<div style="display: flex;align-items: center;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+						<textarea ui_key="input_aes_encrypt" ui_type="raw_zone"></textarea>
+					</div>
+					<div style="width: 30px;flex-shrink: 1;"></div>
+					<div>
+						<div ui_key="btn_aes_encrypt" ui_type="button">run</div>
+					</div>
+				</div>
+				<div style="height: 30px;"></div>
+				<div>result</div>
+				<div style="height: 10px;"></div>
+				<div ui_type="result_zone_wrap">
+					<textarea ui_key="result_aes_encrypt" ui_type="result_zone"></textarea>
+				</div>
+			</div>
+			<div>
+				<div style="height: 30px;"></div>
+				<div style="height: 2px;background-color: #ff8000;"></div>
+				<div style="height: 30px;"></div>
+			</div>
+			<div>
+				<div style="display: flex;align-items: center;">
+					<div style="color: #ff8000;">AES-256-CTR</div>
+					<div style="width: 0.7rem;"></div>
+					<div>to String</div>
+					<div style="width: 0.7rem;"></div>
+					<div>｜PrivateKey：</div>
+					<div><input ui_key="aes_decrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;"></div>
+				</div>
+				<div style="height: 10px;"></div>
+				<div>raw</div>
+				<div style="height: 10px;"></div>
+				<div style="display: flex;align-items: center;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+						<textarea ui_key="input_aes_decrypt" ui_type="raw_zone"></textarea>
+					</div>
+					<div style="width: 30px;flex-shrink: 1;"></div>
+					<div>
+						<div ui_key="btn_aes_decrypt" ui_type="button">run</div>
+					</div>
+				</div>
+				<div style="height: 30px;"></div>
+				<div>result</div>
+				<div style="height: 10px;"></div>
+				<div ui_type="result_zone_wrap">
+					<textarea ui_key="result_aes_decrypt" ui_type="result_zone"></textarea>
 				</div>
 			</div>
 			<div style="height: 60px;"></div>
