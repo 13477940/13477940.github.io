@@ -2,9 +2,9 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<meta name="description" content="JavaScript Base64 URL-Safe & SHA-256">
+		<meta name="description" content="javascript implement base64,hmac,sha256,aes-ctr by cryptojs.">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title>Base64 URL-Safe & SHA-256｜JavaScript</title>
+		<title>Base64 URL-Safe,HMAC,SHA256,AES｜JavaScript</title>
 		<style>
 			* {
 				margin: 0px;
@@ -82,6 +82,10 @@
 		<script src="js/cryptojs/aes/cipher-core.min.js"></script>
 		<script src="js/cryptojs/aes/mode-ctr.min.js"></script>
 		<script src="js/cryptojs/aes/aes.min.js"></script>
+		<!-- hmac-sha256 -->
+		<script src="js/cryptojs/hmac/hmac.min.js"></script>
+		<script src="js/cryptojs/hmac/sha256.min.js"></script>
+		<script src="js/cryptojs/hmac/hmac-sha256.min.js"></script>
 		<script>
 			'use strict';
 			$(()=>{
@@ -196,7 +200,7 @@
 						})();
 						$("textarea[ui_key=result_aes_encrypt]").val("");
 						var value = $("textarea[ui_key=input_aes_encrypt]").val().trim();
-						var privateKey = $("input[ui_key=aes_encrypt_key]").val();
+						var privateKey = $("input[ui_key=aes_encrypt_key]").val().trim();
 						var res = encrypt_AES_256(value, privateKey);
 						$("textarea[ui_key=result_aes_encrypt]").val(res);
 					});
@@ -224,7 +228,7 @@
 						})();
 						$("textarea[ui_key=result_aes_decrypt]").val("");
 						var value = $("textarea[ui_key=input_aes_decrypt]").val().trim();
-						var privateKey = $("input[ui_key=aes_decrypt_key]").val();
+						var privateKey = $("input[ui_key=aes_decrypt_key]").val().trim();
 						var res = decrypt_AES_256(value, privateKey);
 						$("textarea[ui_key=result_aes_decrypt]").val(res);
 					});
@@ -243,11 +247,30 @@
 						return str.replace(/-/g, '+').replace(/_/g, '/');
 					}
 				})();
+				// HMAC-SHA-256
+				(()=>{
+					$("div[ui_key=btn_hmac_sha256]").on("click", (event)=>{
+						(()=>{
+							var targetElem = $(event.currentTarget);
+							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+						})();
+						$("textarea[ui_key=result_hmac_sha256]").val("");
+						var value = $("textarea[ui_key=input_hmac_sha256]").val().trim();
+						var secret = $("input[ui_key=hmac_sha256_secret]").val().trim();
+						var res = str_to_hmac_sha256(value, secret);
+						$("textarea[ui_key=result_hmac_sha256]").val(res);
+					});
+					function str_to_hmac_sha256(str, secret) {
+						return CryptoJS.HmacSHA256(str, secret).toString();
+					}
+				})();
 			});
 		</script>
 	</head>
 	<body>
 		<div style="padding: 20px;">
+			<!-- str to b64 -->
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div style="display: flex;align-items: center;">
@@ -283,6 +306,7 @@
 				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
+			<!-- b64 to str -->
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div style="color: #ff8000;">Base64</div>
@@ -313,6 +337,7 @@
 				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
+			<!-- str to sha256 -->
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to</div>
@@ -343,6 +368,43 @@
 				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
+			<!-- str to hmac-sha256 -->
+			<div>
+				<div style="display: flex;align-items: center;flex-wrap: wrap;">
+					<div>String to</div>
+					<div style="width: 0.7rem;"></div>
+					<div style="color: #ff8000;">HMAC-SHA256</div>
+					<div style="width: 0.7rem;"></div>
+					<div>｜Secret：</div>
+					<div>
+						<input ui_key="hmac_sha256_secret" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
+					</div>
+				</div>
+				<div style="height: 10px;"></div>
+				<div>raw</div>
+				<div style="height: 10px;"></div>
+				<div style="display: flex;align-items: center;">
+					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+						<textarea ui_key="input_hmac_sha256" ui_type="raw_zone"></textarea>
+					</div>
+					<div style="width: 30px;flex-shrink: 1;"></div>
+					<div>
+						<div ui_key="btn_hmac_sha256" ui_type="button">run</div>
+					</div>
+				</div>
+				<div style="height: 30px;"></div>
+				<div>result</div>
+				<div style="height: 10px;"></div>
+				<div ui_type="result_zone_wrap">
+					<textarea ui_key="result_hmac_sha256" ui_type="result_zone"></textarea>
+				</div>
+			</div>
+			<div>
+				<div style="height: 30px;"></div>
+				<div style="height: 2px;background-color: #ff8000;"></div>
+				<div style="height: 30px;"></div>
+			</div>
+			<!-- str to uppercase -->
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to</div>
@@ -373,6 +435,7 @@
 				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
+			<!-- str to lowercase -->
 			<div>
 				<div style="display: flex;align-items: center;">
 					<div>String to</div>
@@ -403,6 +466,7 @@
 				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
+			<!-- str to aes-256-ctr -->
 			<div>
 				<div style="display: flex;align-items: center;flex-wrap: wrap;">
 					<div>String to</div>
@@ -410,7 +474,9 @@
 					<div style="color: #ff8000;">AES-256-CTR</div>
 					<div style="width: 0.7rem;"></div>
 					<div>｜PrivateKey：</div>
-					<div><input ui_key="aes_encrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;"></div>
+					<div>
+						<input ui_key="aes_encrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
+					</div>
 					<div style="width: 0.7rem;"></div>
 					<div>｜JavaCode：<a href="demo/java/StandardAesEncryptDemo.java" style="color: #ff8000;text-decoration: none;">file</a></div>
 				</div>
@@ -438,6 +504,7 @@
 				<div style="height: 2px;background-color: #ff8000;"></div>
 				<div style="height: 30px;"></div>
 			</div>
+			<!-- aes-256-ctr to str -->
 			<div>
 				<div style="display: flex;align-items: center;flex-wrap: wrap;">
 					<div style="color: #ff8000;">AES-256-CTR</div>
@@ -445,7 +512,9 @@
 					<div>to String</div>
 					<div style="width: 0.7rem;"></div>
 					<div>｜PrivateKey：</div>
-					<div><input ui_key="aes_decrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;"></div>
+					<div>
+						<input ui_key="aes_decrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
+					</div>
 				</div>
 				<div style="height: 10px;"></div>
 				<div>raw</div>
