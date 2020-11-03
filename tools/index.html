@@ -1,539 +1,544 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="description" content="javascript implement base64,hmac,sha256,aes-ctr by cryptojs.">
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title>Base64 URL-Safe,HMAC,SHA256,AES｜JavaScript</title>
-		<style>
-			* {
-				margin: 0px;
-				padding: 0px;
-				outline: none;
-			}
-			body {
-				font-size: 16px;
-			}
-			div[ui_type=raw_zone_wrap] {
-				width: 50vw;
-				height: 180px;
-				padding: 10px;
-				border: 1px solid #333;
-				border-radius: 4px;
-			}
-			div[ui_type=result_zone_wrap] {
-				width: 50vw;
-				height: 180px;
-				padding: 10px;
-				background-color: rgb(245,245,245);
-				border: 1px solid #ff8000;
-				border-radius: 4px;
-			}
-			textarea[ui_type=raw_zone] {
-				width: 100%;
-				height: 100%;
-				word-break: break-all;
-				font-size: 1rem;
-				line-height: 1.2rem;
-				letter-spacing: 1px;
-				resize: none;
-				color: #333;
-				border: none;
-				background: none;
-			}
-			textarea[ui_type=result_zone] {
-				width: 100%;
-				height: 100%;
-				word-break: break-all;
-				font-size: 1rem;
-				line-height: 1.2rem;
-				letter-spacing: 1px;
-				resize: none;
-				color: #333;
-				border: none;
-				background: none;
-			}
-			div[ui_type=button] {
-				border: 2px solid #ff8000;
-				color: #333;
-				font-size: 1rem;
-				line-height: 1.2rem;
-				letter-spacing: 1px;
-				cursor: pointer;
-				padding: 15px 25px;
-				border-radius: 4px;
-			}
-			div[ui_type=button]:hover {
-				color: #fff;
-				background-color: #ff8000;
-			}
-		</style>
-		<script src="js/jquery/jquery.min.js"></script>
-		<script src="js/cryptojs/core.min.js"></script>
-		<script src="js/cryptojs/base64.min.js"></script>
-		<script src="js/cryptojs/sha256.min.js"></script>
-		<!-- 引用順序要注意才能正常載入功能 -->
-		<script src="js/cryptojs/aes/enc-base64.min.js"></script>
-		<script src="js/cryptojs/aes/hmac.min.js"></script>
-		<script src="js/cryptojs/aes/md5.min.js"></script>
-		<script src="js/cryptojs/aes/sha1.min.js"></script>
-		<script src="js/cryptojs/aes/enc-utf8.min.js"></script>
-		<script src="js/cryptojs/aes/evpkdf.min.js"></script>
-		<script src="js/cryptojs/aes/cipher-core.min.js"></script>
-		<script src="js/cryptojs/aes/mode-ctr.min.js"></script>
-		<script src="js/cryptojs/aes/aes.min.js"></script>
-		<!-- hmac-sha256 -->
-		<script src="js/cryptojs/hmac/hmac-sha256.min.js"></script>
-		<script>
-			'use strict';
-			$(()=>{
-				var durationTimer = {};
-				(()=>{
-					$("div[ui_key=btn_a]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_a]").val("");
-						var value = $("textarea[ui_key=input_a]").val().trim();
-						var res = null;
-						(()=>{
-							var byteArr = CryptoJS.enc.Utf8.parse(value);
-							res = url_safe_withoutPadding( CryptoJS.enc.Base64.stringify(byteArr) );
-						})();
-						$("textarea[ui_key=result_a]").val(res);
-					});
-					// https://jsfiddle.net/magikMaker/7bjaT/
-					function url_safe_withoutPadding(str) {
-					    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
-					}
-				})();
-				(()=>{
-					$("div[ui_key=btn_b]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_b]").val("");
-						var value = $("textarea[ui_key=input_b]").val().trim();
-						var res = null;
-						(()=>{
-							var byteArr = CryptoJS.enc.Base64.parse( decode_url_safe( value ) );
-							res = byteArr.toString(CryptoJS.enc.Utf8);
-						})();
-						$("textarea[ui_key=result_b]").val(res);
-					});
-					// https://jsfiddle.net/magikMaker/7bjaT/
-					function decode_url_safe(str) {
-						return str.replace(/-/g, '+').replace(/_/g, '/');
-					}
-				})();
-				(()=>{
-					$("div[ui_key=btn_c]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_c]").val("");
-						var value = $("textarea[ui_key=input_c]").val().trim();
-						var res = null;
-						(()=>{
-							res = CryptoJS.SHA256(value).toString(CryptoJS.enc.Hex);
-						})();
-						$("textarea[ui_key=result_c]").val(res);
-					});
-				})();
-				(()=>{
-					$("div[ui_key=btn_d]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_d]").val("");
-						var value = $("textarea[ui_key=input_d]").val().trim();
-						var res = value.toUpperCase();
-						$("textarea[ui_key=result_d]").val(res);
-					});
-				})();
-				(()=>{
-					$("div[ui_key=btn_e]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_e]").val("");
-						var value = $("textarea[ui_key=input_e]").val().trim();
-						var res = value.toLowerCase();
-						$("textarea[ui_key=result_e]").val(res);
-					});
-				})();
-				// raw keyup
-				(()=>{
-					$("textarea[ui_type=raw_zone]").on("keyup", (event)=>{
-						var targetElem = $(event.currentTarget);
-						var ui_key = targetElem.attr("ui_key");
-						if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						var keyCode = event.keyCode;
-						if("13" == keyCode) {
-							targetElem.parent().parent().find("div[ui_type=button]").click();
-						} else {
-							durationTimer[ui_key] = setTimeout(()=>{
-								targetElem.parent().parent().find("div[ui_type=button]").click();
-							}, 8000);
-						}
-					});
-				})();
-				// AES Encrypt
-				(()=>{
-					$("div[ui_key=btn_aes_encrypt]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_aes_encrypt]").val("");
-						var value = $("textarea[ui_key=input_aes_encrypt]").val().trim();
-						var privateKey = $("input[ui_key=aes_encrypt_key]").val().trim();
-						var res = encrypt_AES_256(value, privateKey);
-						$("textarea[ui_key=result_aes_encrypt]").val(res);
-					});
-					function encrypt_AES_256(content, privateKey) {
-						var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
-						var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
-						var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
-						// var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
-						var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
-						var encrypt = CryptoJS.AES.encrypt(content, key, options);
-						var base64str = url_safe_withoutPadding( encrypt.toString() );
-						return base64str;
-					}
-					function url_safe_withoutPadding(str) {
-					    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
-					}
-				})();
-				// AES Decrypt
-				(()=>{
-					$("div[ui_key=btn_aes_decrypt]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_aes_decrypt]").val("");
-						var value = $("textarea[ui_key=input_aes_decrypt]").val().trim();
-						var privateKey = $("input[ui_key=aes_decrypt_key]").val().trim();
-						var res = decrypt_AES_256(value, privateKey);
-						$("textarea[ui_key=result_aes_decrypt]").val(res);
-					});
-					function decrypt_AES_256(content, privateKey) {
-						var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
-						var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
-						var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
-						// var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
-						var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
-						var encrypted = decode_url_safe(content);
-						var decrypt = CryptoJS.AES.decrypt(encrypted, key, options);
-						var res = CryptoJS.enc.Utf8.stringify(decrypt);
-						return res;
-					}
-					function decode_url_safe(str) {
-						return str.replace(/-/g, '+').replace(/_/g, '/');
-					}
-				})();
-				// HMAC-SHA-256
-				(()=>{
-					$("div[ui_key=btn_hmac_sha256]").on("click", (event)=>{
-						(()=>{
-							var targetElem = $(event.currentTarget);
-							var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
-							if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
-						})();
-						$("textarea[ui_key=result_hmac_sha256]").val("");
-						var value = $("textarea[ui_key=input_hmac_sha256]").val().trim();
-						var secret = $("input[ui_key=hmac_sha256_secret]").val().trim();
-						var res = str_to_hmac_sha256(value, secret);
-						$("textarea[ui_key=result_hmac_sha256]").val(res);
-					});
-					function str_to_hmac_sha256(str, secret) {
-						return CryptoJS.HmacSHA256(str, secret).toString();
-					}
-				})();
-			});
-		</script>
-	</head>
-	<body>
-		<div style="padding: 20px;">
-			<!-- str to b64 -->
-			<div>
-				<div style="display: flex;align-items: center;">
-					<div style="display: flex;align-items: center;">
-						<div>String to</div>
-						<div style="width: 0.7rem;"></div>
-						<div style="color: #ff8000;">Base64</div>
-					</div>
-					<div>（URL-Safe；withoutPadding；</div>
-					<div><a href="https://tools.ietf.org/html/rfc3548" style="color: #ff8000;text-decoration: none;">RFC_3548</a></div>
-					<div>）</div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_a" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_a" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_a" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div>
-				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ff8000;"></div>
-				<div style="height: 30px;"></div>
-			</div>
-			<!-- b64 to str -->
-			<div>
-				<div style="display: flex;align-items: center;">
-					<div style="color: #ff8000;">Base64</div>
-					<div style="width: 0.7rem;"></div>
-					<div>to String</div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_b" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_b" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_b" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div>
-				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ff8000;"></div>
-				<div style="height: 30px;"></div>
-			</div>
-			<!-- str to sha256 -->
-			<div>
-				<div style="display: flex;align-items: center;">
-					<div>String to</div>
-					<div style="width: 0.7rem;"></div>
-					<div style="color: #ff8000;">SHA-256</div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_c" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_c" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_c" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div>
-				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ff8000;"></div>
-				<div style="height: 30px;"></div>
-			</div>
-			<!-- str to hmac-sha256 -->
-			<div>
-				<div style="display: flex;align-items: center;flex-wrap: wrap;">
-					<div>String to</div>
-					<div style="width: 0.7rem;"></div>
-					<div style="color: #ff8000;">HMAC-SHA256</div>
-					<div style="width: 0.7rem;"></div>
-					<div>｜Secret：</div>
-					<div>
-						<input ui_key="hmac_sha256_secret" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
-					</div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_hmac_sha256" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_hmac_sha256" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_hmac_sha256" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div>
-				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ff8000;"></div>
-				<div style="height: 30px;"></div>
-			</div>
-			<!-- str to uppercase -->
-			<div>
-				<div style="display: flex;align-items: center;">
-					<div>String to</div>
-					<div style="width: 0.7rem;"></div>
-					<div style="color: #ff8000;">UpperCase</div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_d" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_d" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_d" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div>
-				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ff8000;"></div>
-				<div style="height: 30px;"></div>
-			</div>
-			<!-- str to lowercase -->
-			<div>
-				<div style="display: flex;align-items: center;">
-					<div>String to</div>
-					<div style="width: 0.7rem;"></div>
-					<div style="color: #ff8000;">LowerCase</div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_e" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_e" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_e" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div>
-				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ff8000;"></div>
-				<div style="height: 30px;"></div>
-			</div>
-			<!-- str to aes-256-ctr -->
-			<div>
-				<div style="display: flex;align-items: center;flex-wrap: wrap;">
-					<div>String to</div>
-					<div style="width: 0.7rem;"></div>
-					<div style="color: #ff8000;">AES-256-CTR</div>
-					<div style="width: 0.7rem;"></div>
-					<div>｜PrivateKey：</div>
-					<div>
-						<input ui_key="aes_encrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
-					</div>
-					<div style="width: 0.7rem;"></div>
-					<div>｜JavaCode：<a href="demo/java/StandardAesEncryptDemo.java" style="color: #ff8000;text-decoration: none;">file</a></div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_aes_encrypt" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_aes_encrypt" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_aes_encrypt" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div>
-				<div style="height: 30px;"></div>
-				<div style="height: 2px;background-color: #ff8000;"></div>
-				<div style="height: 30px;"></div>
-			</div>
-			<!-- aes-256-ctr to str -->
-			<div>
-				<div style="display: flex;align-items: center;flex-wrap: wrap;">
-					<div style="color: #ff8000;">AES-256-CTR</div>
-					<div style="width: 0.7rem;"></div>
-					<div>to String</div>
-					<div style="width: 0.7rem;"></div>
-					<div>｜PrivateKey：</div>
-					<div>
-						<input ui_key="aes_decrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
-					</div>
-				</div>
-				<div style="height: 10px;"></div>
-				<div>raw</div>
-				<div style="height: 10px;"></div>
-				<div style="display: flex;align-items: center;">
-					<div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
-						<textarea ui_key="input_aes_decrypt" ui_type="raw_zone"></textarea>
-					</div>
-					<div style="width: 30px;flex-shrink: 1;"></div>
-					<div>
-						<div ui_key="btn_aes_decrypt" ui_type="button">run</div>
-					</div>
-				</div>
-				<div style="height: 30px;"></div>
-				<div>result</div>
-				<div style="height: 10px;"></div>
-				<div ui_type="result_zone_wrap">
-					<textarea ui_key="result_aes_decrypt" ui_type="result_zone"></textarea>
-				</div>
-			</div>
-			<div style="height: 60px;"></div>
-		</div>
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="javascript implement base64,hmac,sha256,aes-ctr by cryptojs.">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Base64 URL-Safe,HMAC,SHA256,AES｜JavaScript</title>
+        <style>
+            * {
+                margin: 0px;
+                padding: 0px;
+                outline: none;
+            }
+            body {
+                font-size: 16px;
+            }
+            div[ui_type=raw_zone_wrap] {
+                width: 50vw;
+                height: 180px;
+                padding: 10px;
+                border: 1px solid #333;
+                border-radius: 4px;
+            }
+            div[ui_type=result_zone_wrap] {
+                width: 50vw;
+                height: 180px;
+                padding: 10px;
+                background-color: rgb(245,245,245);
+                border: 1px solid #ff8000;
+                border-radius: 4px;
+            }
+            textarea[ui_type=raw_zone] {
+                width: 100%;
+                height: 100%;
+                word-break: break-all;
+                font-size: 1rem;
+                line-height: 1.2rem;
+                letter-spacing: 1px;
+                resize: none;
+                color: #333;
+                border: none;
+                background: none;
+            }
+            textarea[ui_type=result_zone] {
+                width: 100%;
+                height: 100%;
+                word-break: break-all;
+                font-size: 1rem;
+                line-height: 1.2rem;
+                letter-spacing: 1px;
+                resize: none;
+                color: #333;
+                border: none;
+                background: none;
+            }
+            div[ui_type=button] {
+                border: 2px solid #ff8000;
+                color: #333;
+                font-size: 1rem;
+                line-height: 1.2rem;
+                letter-spacing: 1px;
+                cursor: pointer;
+                padding: 15px 25px;
+                border-radius: 4px;
+            }
+            div[ui_type=button]:hover {
+                color: #fff;
+                background-color: #ff8000;
+            }
+        </style>
+        <script src="js/jquery/jquery.min.js"></script>
+        <script src="js/cryptojs/core.min.js"></script>
+        <script src="js/cryptojs/base64.min.js"></script>
+        <script src="js/cryptojs/sha256.min.js"></script>
+        <!-- 引用順序要注意才能正常載入功能 -->
+        <script src="js/cryptojs/aes/enc-base64.min.js"></script>
+        <script src="js/cryptojs/aes/hmac.min.js"></script>
+        <script src="js/cryptojs/aes/md5.min.js"></script>
+        <script src="js/cryptojs/aes/sha1.min.js"></script>
+        <script src="js/cryptojs/aes/enc-utf8.min.js"></script>
+        <script src="js/cryptojs/aes/evpkdf.min.js"></script>
+        <script src="js/cryptojs/aes/cipher-core.min.js"></script>
+        <script src="js/cryptojs/aes/mode-ctr.min.js"></script>
+        <script src="js/cryptojs/aes/aes.min.js"></script>
+        <!-- hmac-sha256 -->
+        <script src="js/cryptojs/hmac/hmac-sha256.min.js"></script>
+        <script>
+            'use strict';
+            $(()=>{
+                var durationTimer = {};
+                (()=>{
+                    $("div[ui_key=btn_a]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_a]").val("");
+                        var value = $("textarea[ui_key=input_a]").val().trim();
+                        var res = null;
+                        (()=>{
+                            var byteArr = CryptoJS.enc.Utf8.parse(value);
+                            res = url_safe_withoutPadding( CryptoJS.enc.Base64.stringify(byteArr) );
+                        })();
+                        $("textarea[ui_key=result_a]").val(res);
+                    });
+                    // https://jsfiddle.net/magikMaker/7bjaT/
+                    function url_safe_withoutPadding(str) {
+                        return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+                    }
+                })();
+                (()=>{
+                    $("div[ui_key=btn_b]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_b]").val("");
+                        var value = $("textarea[ui_key=input_b]").val().trim();
+                        var res = null;
+                        (()=>{
+                            var byteArr = CryptoJS.enc.Base64.parse( decode_url_safe( value ) );
+                            res = byteArr.toString(CryptoJS.enc.Utf8);
+                        })();
+                        $("textarea[ui_key=result_b]").val(res);
+                    });
+                    // https://jsfiddle.net/magikMaker/7bjaT/
+                    function decode_url_safe(str) {
+                        return str.replace(/-/g, '+').replace(/_/g, '/');
+                    }
+                })();
+                (()=>{
+                    $("div[ui_key=btn_c]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_c]").val("");
+                        var value = $("textarea[ui_key=input_c]").val().trim();
+                        var res = null;
+                        (()=>{
+                            res = CryptoJS.SHA256(value).toString(CryptoJS.enc.Hex);
+                        })();
+                        $("textarea[ui_key=result_c]").val(res);
+                    });
+                })();
+                (()=>{
+                    $("div[ui_key=btn_d]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_d]").val("");
+                        var value = $("textarea[ui_key=input_d]").val().trim();
+                        var res = value.toUpperCase();
+                        $("textarea[ui_key=result_d]").val(res);
+                    });
+                })();
+                (()=>{
+                    $("div[ui_key=btn_e]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_e]").val("");
+                        var value = $("textarea[ui_key=input_e]").val().trim();
+                        var res = value.toLowerCase();
+                        $("textarea[ui_key=result_e]").val(res);
+                    });
+                })();
+                // raw keyup
+                (()=>{
+                    $("textarea[ui_type=raw_zone]").on("keyup", (event)=>{
+                        var targetElem = $(event.currentTarget);
+                        var ui_key = targetElem.attr("ui_key");
+                        if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        var keyCode = event.keyCode;
+                        if("13" == keyCode) {
+                            targetElem.parent().parent().find("div[ui_type=button]").click();
+                        } else {
+                            durationTimer[ui_key] = setTimeout(()=>{
+                                targetElem.parent().parent().find("div[ui_type=button]").click();
+                            }, 8000);
+                        }
+                    });
+                })();
+                // AES Encrypt
+                (()=>{
+                    $("div[ui_key=btn_aes_encrypt]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_aes_encrypt]").val("");
+                        var value = $("textarea[ui_key=input_aes_encrypt]").val().trim();
+                        var privateKey = $("input[ui_key=aes_encrypt_key]").val().trim();
+                        var res = encrypt_AES_256(value, privateKey);
+                        $("textarea[ui_key=result_aes_encrypt]").val(res);
+                    });
+                    function encrypt_AES_256(content, privateKey) {
+                        var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
+                        var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
+                        var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
+                        // var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+                        var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
+                        var encrypt = CryptoJS.AES.encrypt(content, key, options);
+                        var base64str = url_safe_withoutPadding( encrypt.toString() );
+                        return base64str;
+                    }
+                    function url_safe_withoutPadding(str) {
+                        return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+                    }
+                })();
+                // AES Decrypt
+                (()=>{
+                    $("div[ui_key=btn_aes_decrypt]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_aes_decrypt]").val("");
+                        var value = $("textarea[ui_key=input_aes_decrypt]").val().trim();
+                        var privateKey = $("input[ui_key=aes_decrypt_key]").val().trim();
+                        var res = decrypt_AES_256(value, privateKey);
+                        $("textarea[ui_key=result_aes_decrypt]").val(res);
+                    });
+                    function decrypt_AES_256(content, privateKey) {
+                        var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
+                        var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
+                        var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
+                        // var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+                        var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
+                        var encrypted = decode_url_safe(content);
+                        var decrypt = CryptoJS.AES.decrypt(encrypted, key, options);
+                        var res = CryptoJS.enc.Utf8.stringify(decrypt);
+                        return res;
+                    }
+                    function decode_url_safe(str) {
+                        return str.replace(/-/g, '+').replace(/_/g, '/');
+                    }
+                })();
+                // HmacSHA256
+                (()=>{
+                    $("div[ui_key=btn_hmac_sha256]").on("click", (event)=>{
+                        (()=>{
+                            var targetElem = $(event.currentTarget);
+                            var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
+                            if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
+                        })();
+                        $("textarea[ui_key=result_hmac_sha256]").val("");
+                        var value = $("textarea[ui_key=input_hmac_sha256]").val().trim();
+                        var secret = $("input[ui_key=hmac_sha256_secret]").val().trim();
+                        var b64str = null;
+                        (()=>{
+                            var hash = CryptoJS.HmacSHA256(value, secret);
+                            b64str = url_safe_withoutPadding( CryptoJS.enc.Base64.stringify(hash) );
+                        })();
+                        $("textarea[ui_key=result_hmac_sha256]").val(base64str);
+                    });
+                    function url_safe_withoutPadding(str) {
+                        return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+                    }
+                })();
+            });
+        </script>
+    </head>
+    <body>
+        <div style="padding: 20px;">
+            <!-- str to b64 -->
+            <div>
+                <div style="display: flex;align-items: center;">
+                    <div style="display: flex;align-items: center;">
+                        <div>String to</div>
+                        <div style="width: 0.7rem;"></div>
+                        <div style="color: #ff8000;">Base64</div>
+                    </div>
+                    <div>（URL-Safe；withoutPadding；</div>
+                    <div><a href="https://tools.ietf.org/html/rfc3548" style="color: #ff8000;text-decoration: none;">RFC_3548</a></div>
+                    <div>）</div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_a" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_a" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_a" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
+            <!-- b64 to str -->
+            <div>
+                <div style="display: flex;align-items: center;">
+                    <div style="color: #ff8000;">Base64</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div>to String</div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_b" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_b" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_b" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
+            <!-- str to sha256 -->
+            <div>
+                <div style="display: flex;align-items: center;">
+                    <div>String to</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div style="color: #ff8000;">SHA-256</div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_c" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_c" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_c" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
+            <!-- str to hmac-sha256 -->
+            <div>
+                <div style="display: flex;align-items: center;flex-wrap: wrap;">
+                    <div>String to</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div style="color: #ff8000;">HMAC-SHA256</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div>｜Secret：</div>
+                    <div>
+                        <input ui_key="hmac_sha256_secret" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
+                    </div>
+                    <div>｜JavaCode：<a href="demo/java/HmacSha256_example.java" style="color: #ff8000;text-decoration: none;">file</a></div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_hmac_sha256" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_hmac_sha256" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_hmac_sha256" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
+            <!-- str to uppercase -->
+            <div>
+                <div style="display: flex;align-items: center;">
+                    <div>String to</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div style="color: #ff8000;">UpperCase</div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_d" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_d" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_d" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
+            <!-- str to lowercase -->
+            <div>
+                <div style="display: flex;align-items: center;">
+                    <div>String to</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div style="color: #ff8000;">LowerCase</div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_e" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_e" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_e" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
+            <!-- str to aes-256-ctr -->
+            <div>
+                <div style="display: flex;align-items: center;flex-wrap: wrap;">
+                    <div>String to</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div style="color: #ff8000;">AES-256-CTR</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div>｜PrivateKey：</div>
+                    <div>
+                        <input ui_key="aes_encrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
+                    </div>
+                    <div style="width: 0.7rem;"></div>
+                    <div>｜JavaCode：<a href="demo/java/StandardAesEncryptDemo.java" style="color: #ff8000;text-decoration: none;">file</a></div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_aes_encrypt" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_aes_encrypt" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_aes_encrypt" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
+            <!-- aes-256-ctr to str -->
+            <div>
+                <div style="display: flex;align-items: center;flex-wrap: wrap;">
+                    <div style="color: #ff8000;">AES-256-CTR</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div>to String</div>
+                    <div style="width: 0.7rem;"></div>
+                    <div>｜PrivateKey：</div>
+                    <div>
+                        <input ui_key="aes_decrypt_key" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
+                    </div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>raw</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;">
+                    <div ui_type="raw_zone_wrap" style="flex-shrink: 1;">
+                        <textarea ui_key="input_aes_decrypt" ui_type="raw_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_aes_decrypt" ui_type="button">run</div>
+                    </div>
+                </div>
+                <div style="height: 30px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div ui_type="result_zone_wrap">
+                    <textarea ui_key="result_aes_decrypt" ui_type="result_zone"></textarea>
+                </div>
+            </div>
+            <div style="height: 60px;"></div>
+        </div>
     </body>
 </html>
