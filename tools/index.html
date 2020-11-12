@@ -279,7 +279,13 @@
                         $("textarea[ui_key=result_random_str]").val(genRandomStr(len));
                     });
                     function genRandomStr(len) {
-                        var t = "abcdefghijklmnopqrstuvwxyz0123456789";
+                        var arr = [];
+                        (function(){
+                            arr.push("0123456789");
+                            arr.push("abcdefghijklmnopqrstuvwxyz");
+                            arr.push("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        })();
+                        var t = arr.join("");
                         var r = [];
                         var l = 16; // default
                         var tLen = t.length;
