@@ -268,11 +268,65 @@
                         return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
                     }
                 })();
+                // Random String Generate
+                (function(){
+                    $("div[ui_key=btn_random_str]").on("click", function(){
+                        var len = $("input[ui_key=random_str_length]").val();
+                        // default is 8 length
+                        if(null == len || len.length == 0) {
+                            len = 8;
+                        }
+                        $("textarea[ui_key=result_random_str]").val(genRandomStr(len));
+                    });
+                    function genRandomStr(len) {
+                        var t = "abcdefghijklmnopqrstuvwxyz0123456789";
+                        var r = [];
+                        var l = 16; // default
+                        var tLen = t.length;
+                        if(null != len) l = len;
+                        for(var i = 0; i < l; i++) {
+                            var c = t.charAt( Math.floor( Math.random() * tLen ) );
+                            r.push(c);
+                        }
+                        return r.join("");
+                    }
+                })();
             });
         </script>
     </head>
     <body>
         <div style="padding: 20px;">
+            <!-- random string generate -->
+            <div>
+                <div style="display: flex;align-items: center;">
+                    <div style="display: flex;align-items: center;">
+                        <div>Random String Generate</div>
+                        <div style="width: 0.7rem;flex-shrink: 0;"></div>
+                        <div>｜String Length：</div>
+                        <div style="width: 0.7rem;flex-shrink: 0;"></div>
+                        <div>
+                            <input ui_key="random_str_length" style="width: 200px;font-size: 1rem;line-height: 1.2rem;letter-spacing: 1px;border: 2px solid #ff8000;color: #333;">
+                        </div>
+                    </div>
+                </div>
+                <div style="height: 10px;"></div>
+                <div>result</div>
+                <div style="height: 10px;"></div>
+                <div style="display: flex;align-items: center;"></div>
+                    <div ui_type="result_zone_wrap">
+                        <textarea ui_key="result_random_str" ui_type="result_zone"></textarea>
+                    </div>
+                    <div style="width: 30px;flex-shrink: 1;"></div>
+                    <div>
+                        <div ui_key="btn_random_str" ui_type="button">run</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div style="height: 30px;"></div>
+                <div style="height: 2px;background-color: #ff8000;"></div>
+                <div style="height: 30px;"></div>
+            </div>
             <!-- str to b64 -->
             <div>
                 <div style="display: flex;align-items: center;">
