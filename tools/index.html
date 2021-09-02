@@ -2,9 +2,9 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta name="description" content="javascript implement base64,hmac,sha256,aes-ctr by cryptojs.">
+        <meta name="description" content="javascript implement base64-url-safe,hmac,sha256,aes-ctr by cryptojs.">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Base64 URL-Safe,HMAC,SHA256,AES｜JavaScript</title>
+        <title>Base64 URL-Safe,HMAC,SHA256,AES-CTR｜JavaScript</title>
         <style>
             * {
                 margin: 0px;
@@ -70,27 +70,24 @@
         </style>
         <script src="js/jquery/jquery.min.js"></script>
         <script src="js/cryptojs/core.min.js"></script>
-        <script src="js/cryptojs/base64.min.js"></script>
+        <script src="js/cryptojs/enc-base64.min.js"></script>
         <script src="js/cryptojs/sha256.min.js"></script>
         <!-- 引用順序要注意才能正常載入功能 -->
-        <script src="js/cryptojs/aes/enc-base64.min.js"></script>
         <script src="js/cryptojs/aes/hmac.min.js"></script>
         <script src="js/cryptojs/aes/md5.min.js"></script>
         <script src="js/cryptojs/aes/sha1.min.js"></script>
-        <script src="js/cryptojs/aes/enc-utf8.min.js"></script>
         <script src="js/cryptojs/aes/evpkdf.min.js"></script>
         <script src="js/cryptojs/aes/cipher-core.min.js"></script>
         <script src="js/cryptojs/aes/mode-ctr.min.js"></script>
         <script src="js/cryptojs/aes/aes.min.js"></script>
-        <!-- hmac-sha256 -->
-        <script src="js/cryptojs/hmac/hmac-sha256.min.js"></script>
+        <!-- proc functions -->
         <script>
             'use strict';
-            $(()=>{
+            $(function(){
                 var durationTimer = {};
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_a]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -98,7 +95,7 @@
                         $("textarea[ui_key=result_a]").val("");
                         var value = $("textarea[ui_key=input_a]").val().trim();
                         var res = null;
-                        (()=>{
+                        (function(){
                             var byteArr = CryptoJS.enc.Utf8.parse(value);
                             res = url_safe_withoutPadding( CryptoJS.enc.Base64.stringify(byteArr) );
                         })();
@@ -109,9 +106,9 @@
                         return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
                     }
                 })();
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_b]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -119,7 +116,7 @@
                         $("textarea[ui_key=result_b]").val("");
                         var value = $("textarea[ui_key=input_b]").val().trim();
                         var res = null;
-                        (()=>{
+                        (function(){
                             var byteArr = CryptoJS.enc.Base64.parse( decode_url_safe( value ) );
                             res = byteArr.toString(CryptoJS.enc.Utf8);
                         })();
@@ -130,9 +127,9 @@
                         return str.replace(/-/g, '+').replace(/_/g, '/');
                     }
                 })();
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_c]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -140,15 +137,15 @@
                         $("textarea[ui_key=result_c]").val("");
                         var value = $("textarea[ui_key=input_c]").val().trim();
                         var res = null;
-                        (()=>{
+                        (function(){
                             res = CryptoJS.SHA256(value).toString(CryptoJS.enc.Hex);
                         })();
                         $("textarea[ui_key=result_c]").val(res);
                     });
                 })();
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_d]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -159,9 +156,9 @@
                         $("textarea[ui_key=result_d]").val(res);
                     });
                 })();
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_e]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -173,7 +170,7 @@
                     });
                 })();
                 // raw keyup
-                (()=>{
+                (function(){
                     $("textarea[ui_type=raw_zone]").on("keyup", (event)=>{
                         var targetElem = $(event.currentTarget);
                         var ui_key = targetElem.attr("ui_key");
@@ -182,16 +179,16 @@
                         if("13" == keyCode) {
                             targetElem.parent().parent().find("div[ui_type=button]").click();
                         } else {
-                            durationTimer[ui_key] = setTimeout(()=>{
+                            durationTimer[ui_key] = setTimeout(function(){
                                 targetElem.parent().parent().find("div[ui_type=button]").click();
                             }, 8000);
                         }
                     });
                 })();
                 // AES Encrypt
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_aes_encrypt]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -217,9 +214,9 @@
                     }
                 })();
                 // AES Decrypt
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_aes_decrypt]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -247,9 +244,9 @@
                 })();
                 // HmacSHA256
                 // https://jsfiddle.net/jStefano/gm7boy2p/
-                (()=>{
+                (function(){
                     $("div[ui_key=btn_hmac_sha256]").on("click", (event)=>{
-                        (()=>{
+                        (function(){
                             var targetElem = $(event.currentTarget);
                             var ui_key = targetElem.parent().parent().find("textarea[ui_type=raw_zone]").attr("ui_key");
                             if(null != durationTimer[ui_key]) clearTimeout(durationTimer[ui_key]);
@@ -258,7 +255,7 @@
                         var value = $("textarea[ui_key=input_hmac_sha256]").val().trim();
                         var secret = $("input[ui_key=hmac_sha256_secret]").val().trim();
                         var b64str = null;
-                        (()=>{
+                        (function(){
                             var hash = CryptoJS.HmacSHA256(value, secret);
                             b64str = url_safe_withoutPadding( CryptoJS.enc.Base64.stringify(hash) );
                         })();
