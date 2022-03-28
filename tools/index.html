@@ -67,6 +67,21 @@
                 color: #fff;
                 background-color: #ff8000;
             }
+            div[ui_key=to_source_code_page] {
+                border: 2px solid #ff8000;
+                color: #333;
+                font-size: 1rem;
+                line-height: 1.2rem;
+                letter-spacing: 1px;
+                cursor: pointer;
+                padding: 15px 25px;
+                border-radius: 4px;
+                background-color: #fff;
+            }
+            div[ui_key=to_source_code_page]:hover {
+                color: #fff;
+                background-color: #ff8000;
+            }
         </style>
         <script src="js/jquery/jquery.min.js"></script>
         <script src="js/cryptojs/core.min.js"></script>
@@ -293,6 +308,15 @@
                         }
                         return r.join("");
                     }
+                })();
+                // to source code page
+                (function(){
+                    $("div[ui_key=to_source_code_page]").on("click", function(){
+                        window.open(
+                            "https://github.com/13477940/13477940.github.io",
+                            "_blank" // new tab
+                        );
+                    });
                 })();
             });
         </script>
@@ -598,5 +622,7 @@
             </div>
             <div style="height: 60px;"></div>
         </div>
+        <!-- fixed button -->
+        <div ui_key="to_source_code_page" style="position: fixed;right: 20px;top: 20px;z-index: 50;">Source Code</div>
     </body>
 </html>
