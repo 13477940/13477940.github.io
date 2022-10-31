@@ -251,11 +251,13 @@
                 "string": "Hello World"
             };
             right_editor = new JSONEditor(container, options, json_obj);
-            // force set width of input
-            $(".jsoneditor-frame").find("input").css("width", "85px");
-            // expandAll
-            // Expand/collapse a given JSON node. Only applicable for mode 'tree', 'view' and 'form'.
-            right_editor.expandAll();
+            setTimeout(function(){
+                // force set width of input
+                $(".jsoneditor-frame").find("input").css("width", "85px");
+                // expandAll
+                // Expand/collapse a given JSON node. Only applicable for mode 'tree', 'view' and 'form'.
+                right_editor.expandAll();
+            }, 10);
         })();
         (function(){
             $("div[ui_key=btn_parse_json]").on("click", function(){
