@@ -257,6 +257,7 @@
             $("div[ui_key=btn_parse_json]").on("click", function(){
                 right_editor.set(left_editor.get());
                 right_editor.setMode("tree");
+                right_editor.expandAll();
             });
         })();
         (function(){
