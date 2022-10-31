@@ -210,6 +210,7 @@
         }
     })();
     // json editor
+    // https://github.com/josdejong/jsoneditor/blob/master/docs/api.md
     (function(){
         var left_editor = null;
         var right_editor = null;
@@ -252,6 +253,9 @@
             right_editor = new JSONEditor(container, options, json_obj);
             // force set width of input
             $(".jsoneditor-frame").find("input").css("width", "85px");
+            // expandAll
+            // Expand/collapse a given JSON node. Only applicable for mode 'tree', 'view' and 'form'.
+            right_editor.expandAll();
         })();
         (function(){
             $("div[ui_key=btn_parse_json]").on("click", function(){
