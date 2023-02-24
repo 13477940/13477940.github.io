@@ -672,6 +672,40 @@ var axios = window.axios || null;
     };
 })();
 (function () {
+    website["hash_string"] = function () {
+        return {
+            sha_256: function (plainText) {
+                const def = $.Deferred();
+                const textAsBuffer = new TextEncoder().encode(plainText);
+                const hashBuffer = window.crypto.subtle.digest('SHA-256', textAsBuffer);
+                hashBuffer.then(function (hash_byte) {
+                    const hashArray = Array.from(new Uint8Array(hash_byte));
+                    const digest = hashArray.map(b => padStart(b.toString(16), 2, '0')).join('');
+                    def.resolve(digest);
+                }, function (e) {
+                    console.log(e);
+                    def.reject(e);
+                });
+                function padStart(str, targetLength, padString) {
+                    targetLength = targetLength >> 0;
+                    padString = String(padString || ' ');
+                    if (str.length > targetLength) {
+                        return String(str);
+                    }
+                    else {
+                        targetLength = targetLength - str.length;
+                        if (targetLength > padStart.length) {
+                            padString += padString.repeat(targetLength / padString.length);
+                        }
+                        return padString.slice(0, targetLength) + String(str);
+                    }
+                }
+                return def;
+            },
+        };
+    };
+})();
+(function () {
     website["aes_gcm"] = function () {
         const text_encoder = new TextEncoder();
         const text_decoder = new TextDecoder("UTF-8");
@@ -689,12 +723,12 @@ var axios = window.axios || null;
             const def = $.Deferred();
             (function () {
                 const res = { key: "", key_byte: new ArrayBuffer(1), iv: "", iv_byte: new ArrayBuffer(1) };
-                stringToSha256(plain_text).done(function (hash_str) {
+                website.hash_string().sha_256(plain_text).done(function (hash_str) {
                     const key_str = hash_str.substr(0, 32);
                     const key_byte = text_encoder.encode(key_str);
                     res["key"] = key_str;
                     res["key_byte"] = key_byte;
-                    stringToSha256(hash_str).done(function (iv_str) {
+                    website.hash_string().sha_256(hash_str).done(function (iv_str) {
                         const iv_byte = text_encoder.encode(iv_str);
                         res["iv"] = iv_str;
                         res["iv_byte"] = iv_byte;
@@ -702,34 +736,6 @@ var axios = window.axios || null;
                     });
                 });
             })();
-            return def;
-        }
-        function stringToSha256(plainText) {
-            const def = $.Deferred();
-            const textAsBuffer = new TextEncoder().encode(plainText);
-            const hashBuffer = window.crypto.subtle.digest('SHA-256', textAsBuffer);
-            hashBuffer.then(function (hash_byte) {
-                const hashArray = Array.from(new Uint8Array(hash_byte));
-                const digest = hashArray.map(b => padStart(b.toString(16), 2, '0')).join('');
-                def.resolve(digest);
-            }, function (e) {
-                console.log(e);
-                def.reject(e);
-            });
-            function padStart(str, targetLength, padString) {
-                targetLength = targetLength >> 0;
-                padString = String(padString || ' ');
-                if (str.length > targetLength) {
-                    return String(str);
-                }
-                else {
-                    targetLength = targetLength - str.length;
-                    if (targetLength > padStart.length) {
-                        padString += padString.repeat(targetLength / padString.length);
-                    }
-                    return padString.slice(0, targetLength) + String(str);
-                }
-            }
             return def;
         }
         return {
