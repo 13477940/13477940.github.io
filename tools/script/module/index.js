@@ -40,7 +40,7 @@
             return str.replace(/-/g, '+').replace(/_/g, '/');
         }
     })();
-    /*
+    // SHA-256
     (function(){
         $("div[ui_key=btn_c]").on("click", (event)=>{
             (function(){
@@ -52,11 +52,12 @@
             var value = $("textarea[ui_key=input_c]").val().trim();
             var res = null;
             (function(){
-                res = CryptoJS.SHA256(value).toString(CryptoJS.enc.Hex);
+                res = website.hash_string().sha_256(value);
             })();
             $("textarea[ui_key=result_c]").val(res);
         });
-    })();*/
+    })();
+    // UpperCase & LowerCase
     (function(){
         $("div[ui_key=btn_d]").on("click", (event)=>{
             (function(){
@@ -185,7 +186,7 @@
             return r.join("");
         }
     })();
-    // json editor
+    // JSON Editor
     // https://github.com/josdejong/jsoneditor/blob/master/docs/api.md
     (function(){
         var left_editor = null;
