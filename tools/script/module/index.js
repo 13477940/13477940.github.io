@@ -50,11 +50,11 @@
             })();
             $("textarea[ui_key=result_c]").val("");
             var value = $("textarea[ui_key=input_c]").val().trim();
-            var res = null;
             (function(){
-                res = website.hash_string().sha_256(value);
+                website.hash_string().sha_256(value).done(function(res){
+                    $("textarea[ui_key=result_c]").val(res);
+                });
             })();
-            $("textarea[ui_key=result_c]").val(res);
         });
     })();
     // UpperCase & LowerCase
