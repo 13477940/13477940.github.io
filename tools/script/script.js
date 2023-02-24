@@ -3,11 +3,10 @@ var debug_mode = true;
 var website = window.website || {};
 var $ = window.$ || null;
 var axios = window.axios || null;
-var CryptoJS = window.CryptoJS || null;
 (function () {
     website["script"] = function (script_url, ready_fn) {
         (function () {
-            var timer = null;
+            let timer = null;
             exec_load_fn();
             function exec_load_fn() {
                 if (null != timer)
@@ -26,8 +25,8 @@ var CryptoJS = window.CryptoJS || null;
     function load_script_fn(script_url, ready_fn) {
         if (null == ready_fn)
             ready_fn = function () { };
-        var framework_label = "my_script_loader";
-        var container_div = document.querySelector("div[_framework_key=" + framework_label + "]");
+        const framework_label = "my_script_loader";
+        let container_div = document.querySelector("div[_framework_key=" + framework_label + "]");
         (function () {
             if (null == container_div) {
                 container_div = document.createElement('div');
@@ -35,13 +34,17 @@ var CryptoJS = window.CryptoJS || null;
                 document.body.appendChild(container_div);
             }
         })();
-        var catch_count = 0;
-        var target_count = 0;
+        let catch_count = 0;
+        let target_count = 0;
         (function () {
             if (Array.isArray(script_url)) {
                 target_count = script_url.length;
-                for (var url_index in script_url) {
-                    var url = script_url[url_index];
+                if (0 == target_count) {
+                    ready_fn();
+                    return;
+                }
+                for (let url_index in script_url) {
+                    let url = script_url[url_index];
                     rm_rep_script(url);
                     append_script_tag(url, container_div, catch_script_done, catch_script_fail);
                 }
@@ -65,7 +68,7 @@ var CryptoJS = window.CryptoJS || null;
         }
     }
     function append_script_tag(url, container_div, ready_fn, error_fn) {
-        var scriptTag = document.createElement('script');
+        let scriptTag = document.createElement('script');
         scriptTag.src = url;
         if (null != ready_fn)
             scriptTag.onload = ready_fn;
@@ -73,18 +76,17 @@ var CryptoJS = window.CryptoJS || null;
             scriptTag.onerror = error_fn;
         container_div.append(scriptTag);
     }
-    var prefix = [];
+    let prefix = [];
     (function () {
         prefix.push(window.location.protocol);
         prefix.push("//");
         prefix.push(window.location.hostname);
-        prefix.push(window.location.pathname);
     })();
     function rm_rep_script(url) {
-        var elems = document.querySelectorAll("script");
-        var chk_str = prefix.join("") + url;
-        for (var i = 0, len = elems.length; i < len; i++) {
-            var elem = elems[i];
+        let elems = document.querySelectorAll("script");
+        let chk_str = prefix.join("") + url;
+        for (let i = 0, len = elems.length; i < len; i++) {
+            let elem = elems[i];
             if (elem.src.includes(chk_str)) {
                 elem.remove();
             }
@@ -93,35 +95,93 @@ var CryptoJS = window.CryptoJS || null;
 })();
 (function () {
     website["randomString"] = function (len) {
-        var t = "abcdefghijklmnopqrstuvwxyz0123456789";
-        var r = [];
-        var l = 16;
-        var tLen = t.length;
+        const t = "abcdefghijklmnopqrstuvwxyz0123456789";
+        let r = [];
+        let l = 16;
+        let tLen = t.length;
         if (null != len)
             l = len;
-        for (var i = 0; i < l; i++) {
-            var c = t.charAt(Math.floor(Math.random() * tLen));
+        for (let i = 0; i < l; i++) {
+            const c = t.charAt(Math.floor(Math.random() * tLen));
             r.push(c);
         }
         return r.join("");
     };
 })();
 (function () {
+    website["cookie"] = {
+        getItem: function (sKey) {
+            return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(sKey).replace(/[-.+*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+        },
+        setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
+            if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) {
+                return false;
+            }
+            let sExpires = "";
+            if (vEnd) {
+                switch (vEnd.constructor) {
+                    case Number:
+                        {
+                            sExpires = vEnd === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd;
+                        }
+                        break;
+                    case String:
+                        {
+                            sExpires = "; expires=" + vEnd;
+                        }
+                        break;
+                    case Date:
+                        {
+                            sExpires = "; expires=" + vEnd.toUTCString();
+                        }
+                        break;
+                }
+            }
+            document.cookie = encodeURIComponent(sKey) + "=" + encodeURIComponent(sValue) + sExpires + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "") + (bSecure ? "; secure" : "");
+            return true;
+        },
+        removeItem: function (sKey, sPath, sDomain) {
+            if (!sKey || !this.hasItem(sKey)) {
+                return false;
+            }
+            document.cookie = encodeURIComponent(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "");
+            return true;
+        },
+        hasItem: function (sKey) {
+            return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(sKey).replace(/[-.+*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+        },
+        keys: function () {
+            const aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+            for (var nIdx = 0; nIdx < aKeys.length; nIdx++) {
+                aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]);
+            }
+            return aKeys;
+        },
+        clear: function () {
+            const key_arr = website["cookie"].keys();
+            for (let i = 0, len = key_arr.length; i < len; i++) {
+                const key = key_arr[i];
+                website["cookie"].removeItem(key);
+            }
+        }
+    };
+})();
+(function () {
     (function () {
         website["get"] = function (reqObj) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             if (null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers = {};
+            const headers = {};
             (function () {
-                var arr = reqObj["header"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
             })();
@@ -130,17 +190,17 @@ var CryptoJS = window.CryptoJS || null;
                 def.reject();
                 return;
             }
-            var params = new URLSearchParams();
+            const params = new URLSearchParams();
             (function () {
-                var arr = reqObj["data"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["data"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     params.append(key, value);
                 }
             })();
-            var config = {
+            const config = {
                 transformResponse: [
                     function (data) { return data; }
                 ],
@@ -148,7 +208,7 @@ var CryptoJS = window.CryptoJS || null;
                 params: params
             };
             axios.get(reqObj["url"], config).then(function (response) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -164,45 +224,48 @@ var CryptoJS = window.CryptoJS || null;
     })();
     (function () {
         website["post"] = function (reqObj) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             if (null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers = {};
+            const headers = {};
             (function () {
-                var arr = reqObj["header"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
+                (function () {
+                    headers["content-type"] = "application/x-www-form-urlencoded;charset=utf-8";
+                })();
             })();
             if (null != reqObj["data"] && false == Array.isArray(reqObj["data"])) {
                 console.error("data 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var params = new URLSearchParams();
+            const params = new URLSearchParams();
             (function () {
-                var arr = reqObj["data"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["data"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     params.append(key, value);
                 }
             })();
-            var config = {
+            const config = {
                 transformResponse: [
                     function (data) { return data; }
                 ],
                 headers: headers
             };
             axios.post(reqObj["url"], params, config).then(function (response) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -218,24 +281,27 @@ var CryptoJS = window.CryptoJS || null;
     })();
     (function () {
         website["post_json"] = function (reqObj) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             if (null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers = {};
+            const headers = {};
             (function () {
-                var arr = reqObj["header"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
+                (function () {
+                    headers["content-type"] = "application/json;charset=utf-8";
+                })();
             })();
             axios.post(reqObj["url"], reqObj["text"]).then(function (response) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -251,44 +317,47 @@ var CryptoJS = window.CryptoJS || null;
     })();
     (function () {
         website["post_form_data"] = function (reqObj) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             if (null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers = {};
+            const headers = {};
             (function () {
-                var arr = reqObj["header"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
+                (function () {
+                    headers["content-type"] = "multipart/form-data";
+                })();
             })();
             if (null != reqObj["data"] && false == Array.isArray(reqObj["data"])) {
                 console.error("data 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var formData = new FormData();
+            const formData = new FormData();
             (function () {
                 if (null != reqObj["data"]) {
-                    var arr = reqObj["data"];
-                    for (var index in arr) {
-                        var obj = arr[index];
+                    let arr = reqObj["data"];
+                    for (let index in arr) {
+                        let obj = arr[index];
                         formData.append(obj["key"], obj["value"]);
                     }
                 }
             })();
-            var config = {
+            const config = {
                 transformResponse: [function (data) { return data; }],
                 headers: headers,
                 onUploadProgress: function (progressEvent) {
-                    var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    var percentStr = String(percentCompleted);
-                    var respObj = {
+                    let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    let percentStr = String(percentCompleted);
+                    let respObj = {
                         status: "upload_progress",
                         progress_value: percentStr
                     };
@@ -296,7 +365,7 @@ var CryptoJS = window.CryptoJS || null;
                 }
             };
             axios.post(reqObj["url"], formData, config).then(function (response) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -313,9 +382,9 @@ var CryptoJS = window.CryptoJS || null;
 })();
 (function () {
     website["dialog"] = function (initObj) {
-        var def = $.Deferred();
-        var dialogId = "_dialog_" + website.randomString(16);
-        var dialogElem = $(buildDialogHtml());
+        const def = $.Deferred();
+        const dialogId = "_dialog_" + website.randomString(16);
+        const dialogElem = $(buildDialogHtml());
         (function () {
             dialogElem.attr("modal_dialog_ssid", dialogId);
             dialogElem.css("z-index", "10");
@@ -326,7 +395,7 @@ var CryptoJS = window.CryptoJS || null;
         })();
         $("body").append(dialogElem);
         dialogElem.css("display", "flex");
-        var dialogObj = {
+        const dialogObj = {
             dialog: dialogElem.find("div[modal_dialog_key=wrap]"),
             overlay: dialogElem,
             close: function () {
@@ -334,7 +403,7 @@ var CryptoJS = window.CryptoJS || null;
             }
         };
         (function () {
-            var enable_esc_key = "true";
+            let enable_esc_key = "true";
             if (null != initObj["escape_key"]) {
                 enable_esc_key = initObj["escape_key"];
             }
@@ -353,7 +422,7 @@ var CryptoJS = window.CryptoJS || null;
         return def;
     };
     function buildDialogHtml() {
-        var overlay_elem = $("<div modal_dialog_key='overlay' tabindex='0'></div>");
+        const overlay_elem = $("<div modal_dialog_key='overlay' tabindex='0'></div>");
         (function () {
             overlay_elem.css("display", "none");
             overlay_elem.css("align-items", "stretch");
@@ -367,7 +436,7 @@ var CryptoJS = window.CryptoJS || null;
             overlay_elem.css("backdrop-filter", "blur(1px)");
         })();
         (function () {
-            var wrap_html = [];
+            const wrap_html = [];
             wrap_html.push("<div style='flex: 1;'></div>");
             wrap_html.push("<div style='flex-shrink: 0;display: flex;align-items: stretch;justify-content: stretch;flex-direction: column;'>");
             wrap_html.push("<div style='flex: 1;'></div>");
@@ -384,7 +453,7 @@ var CryptoJS = window.CryptoJS || null;
     website["redirect"] = function (url, onCache) {
         if (null == onCache)
             onCache = true;
-        var targetURL = null;
+        let targetURL = null;
         if (null == url) {
             targetURL = location.protocol + '//' + location.host + location.pathname;
         }
@@ -395,7 +464,7 @@ var CryptoJS = window.CryptoJS || null;
             location.href = targetURL;
         }
         else {
-            var ts = Date.now();
+            const ts = Date.now();
             location.href = targetURL + "?ei=" + ts;
         }
     };
@@ -406,30 +475,112 @@ var CryptoJS = window.CryptoJS || null;
             console.error("b64 encode content is null!");
             return null;
         }
-        var byteArr = CryptoJS.enc.Utf8.parse(content);
-        return CryptoJS.enc.Base64.stringify(byteArr);
+        const text_encoder = new TextEncoder();
+        const aMyUTF8Input = text_encoder.encode(content);
+        return base64EncArr(aMyUTF8Input);
     };
     website["base64_url_encode"] = function (content) {
-        var res_str = url_safe_withoutPadding(website["base64_encode"](content));
-        return res_str;
+        return url_safe_withoutPadding(website["base64_encode"](content));
     };
     website["base64_decode"] = function (content) {
         if (null == content) {
             console.error("b64 decode content is null!");
             return null;
         }
-        var byteArr = CryptoJS.enc.Base64.parse(decode_url_safe(content));
-        var res_str = byteArr.toString(CryptoJS.enc.Utf8);
-        return res_str;
+        const text_decoder = new TextDecoder();
+        const aMyUTF8Output = base64DecToArr(content, 1);
+        return text_decoder.decode(aMyUTF8Output);
     };
     website["base64_url_decode"] = function (content) {
-        return website["base64_decode"](content);
+        return website["base64_decode"](decode_url_safe(content));
+    };
+    website["base64_enc_byte"] = function (src_byte) {
+        const tmp_arr = new Uint8Array(src_byte);
+        return base64EncArr(tmp_arr);
+    };
+    website["base64_dec_byte"] = function (src_byte) {
+        return base64DecToArr(src_byte, 1);
+    };
+    website["base64_url_enc_byte"] = function (src_byte) {
+        return url_safe_withoutPadding(website["base64_enc_byte"](src_byte));
+    };
+    website["base64_url_dec_byte"] = function (src_byte) {
+        return website["base64_dec_byte"](decode_url_safe(src_byte));
     };
     function url_safe_withoutPadding(str) {
         return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
     }
     function decode_url_safe(str) {
         return str.replace(/-/g, '+').replace(/_/g, '/');
+    }
+    function uint6ToB64(nUint6) {
+        return nUint6 < 26
+            ? nUint6 + 65
+            : nUint6 < 52
+                ? nUint6 + 71
+                : nUint6 < 62
+                    ? nUint6 - 4
+                    : nUint6 === 62
+                        ? 43
+                        : nUint6 === 63
+                            ? 47
+                            : 65;
+    }
+    function base64EncArr(aBytes) {
+        let nMod3 = 2;
+        let sB64Enc = "";
+        const nLen = aBytes.length;
+        let nUint24 = 0;
+        for (let nIdx = 0; nIdx < nLen; nIdx++) {
+            nMod3 = nIdx % 3;
+            if (nIdx > 0 && ((nIdx * 4) / 3) % 76 === 0) {
+            }
+            nUint24 |= aBytes[nIdx] << ((16 >>> nMod3) & 24);
+            if (nMod3 === 2 || aBytes.length - nIdx === 1) {
+                sB64Enc += String.fromCodePoint(uint6ToB64((nUint24 >>> 18) & 63), uint6ToB64((nUint24 >>> 12) & 63), uint6ToB64((nUint24 >>> 6) & 63), uint6ToB64(nUint24 & 63));
+                nUint24 = 0;
+            }
+        }
+        return (sB64Enc.substring(0, sB64Enc.length - 2 + nMod3) + (nMod3 === 2 ? "" : nMod3 === 1 ? "=" : "=="));
+    }
+    function b64ToUint6(nChr) {
+        return nChr > 64 && nChr < 91
+            ? nChr - 65
+            : nChr > 96 && nChr < 123
+                ? nChr - 71
+                : nChr > 47 && nChr < 58
+                    ? nChr + 4
+                    : nChr === 43
+                        ? 62
+                        : nChr === 47
+                            ? 63
+                            : 0;
+    }
+    function base64DecToArr(sBase64, nBlocksSize) {
+        const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, "");
+        const nInLen = sB64Enc.length;
+        const nOutLen = nBlocksSize
+            ? Math.ceil(((nInLen * 3 + 1) >> 2) / nBlocksSize) * nBlocksSize
+            : (nInLen * 3 + 1) >> 2;
+        const taBytes = new Uint8Array(nOutLen);
+        let nMod3;
+        let nMod4;
+        let nUint24 = 0;
+        let nOutIdx = 0;
+        for (let nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+            nMod4 = nInIdx & 3;
+            nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << (6 * (3 - nMod4));
+            if (nMod4 === 3 || nInLen - nInIdx === 1) {
+                nMod3 = 0;
+                while (nMod3 < 3 && nOutIdx < nOutLen) {
+                    taBytes[nOutIdx] = (nUint24 >>> ((16 >>> nMod3) & 24)) & 255;
+                    nMod3++;
+                    nOutIdx++;
+                }
+                nUint24 = 0;
+            }
+        }
+        return taBytes;
     }
 })();
 (function () {
@@ -520,27 +671,123 @@ var CryptoJS = window.CryptoJS || null;
         return str.split(scan_str).join(fix_str);
     };
 })();
+(function () {
+    website["aes_gcm"] = function () {
+        const text_encoder = new TextEncoder();
+        const text_decoder = new TextDecoder("UTF-8");
+        function build_aes_key(key_byte) {
+            const def = $.Deferred();
+            crypto.subtle.importKey("raw", key_byte, "aes-gcm", false, ["encrypt", "decrypt"]).then(function (key) {
+                def.resolve(key);
+            }, function (e) {
+                console.log(e.message);
+                def.reject(e);
+            });
+            return def;
+        }
+        function build_key_pair(plain_text) {
+            const def = $.Deferred();
+            (function () {
+                const res = { key: "", key_byte: new ArrayBuffer(1), iv: "", iv_byte: new ArrayBuffer(1) };
+                stringToSha256(plain_text).done(function (hash_str) {
+                    const key_str = hash_str.substr(0, 32);
+                    const key_byte = text_encoder.encode(key_str);
+                    res["key"] = key_str;
+                    res["key_byte"] = key_byte;
+                    stringToSha256(hash_str).done(function (iv_str) {
+                        const iv_byte = text_encoder.encode(iv_str);
+                        res["iv"] = iv_str;
+                        res["iv_byte"] = iv_byte;
+                        def.resolve(res);
+                    });
+                });
+            })();
+            return def;
+        }
+        function stringToSha256(plainText) {
+            const def = $.Deferred();
+            const textAsBuffer = new TextEncoder().encode(plainText);
+            const hashBuffer = window.crypto.subtle.digest('SHA-256', textAsBuffer);
+            hashBuffer.then(function (hash_byte) {
+                const hashArray = Array.from(new Uint8Array(hash_byte));
+                const digest = hashArray.map(b => padStart(b.toString(16), 2, '0')).join('');
+                def.resolve(digest);
+            }, function (e) {
+                console.log(e);
+                def.reject(e);
+            });
+            function padStart(str, targetLength, padString) {
+                targetLength = targetLength >> 0;
+                padString = String(padString || ' ');
+                if (str.length > targetLength) {
+                    return String(str);
+                }
+                else {
+                    targetLength = targetLength - str.length;
+                    if (targetLength > padStart.length) {
+                        padString += padString.repeat(targetLength / padString.length);
+                    }
+                    return padString.slice(0, targetLength) + String(str);
+                }
+            }
+            return def;
+        }
+        return {
+            encrypt_string: function (plain_text, private_key) {
+                const def = $.Deferred();
+                build_key_pair(private_key).done(function (key_pair) {
+                    build_aes_key(key_pair.key_byte).done(function (aes_key) {
+                        const data_byte = text_encoder.encode(plain_text);
+                        const enc_def = crypto.subtle.encrypt({ name: "aes-gcm", iv: key_pair.iv_byte }, aes_key, data_byte);
+                        enc_def.then(function (enc_byte) {
+                            const b64_enc_str = website["base64_url_enc_byte"](enc_byte);
+                            def.resolve(b64_enc_str);
+                        }, function (e) {
+                            console.log("aes_exception: " + e.message);
+                            def.reject(e);
+                        });
+                    });
+                });
+                return def;
+            },
+            decrypt_string: function (b64_enc_str, private_key) {
+                const def = $.Deferred();
+                build_key_pair(private_key).done(function (key_pair) {
+                    build_aes_key(key_pair.key_byte).done(function (aes_key) {
+                        const enc_byte = website["base64_url_dec_byte"](b64_enc_str);
+                        const dec_def = crypto.subtle.decrypt({ name: "aes-gcm", iv: key_pair.iv_byte }, aes_key, enc_byte);
+                        dec_def.then(function (dec_byte) {
+                            const dec_str = text_decoder.decode(dec_byte);
+                            def.resolve(dec_str);
+                        }, function (e) {
+                            console.log("aes_exception: " + e.message);
+                            def.reject(e);
+                        });
+                    });
+                });
+                return def;
+            },
+            get_iv: function (private_key) {
+                const def = $.Deferred();
+                build_key_pair(private_key).done(function (key_pair) {
+                    def.resolve(key_pair.iv);
+                });
+                return def;
+            }
+        };
+    };
+})();
 var moment = window.moment || null;
 (function () {
     var arr = [];
     (function () {
         arr.push("script/jquery/jquery.min.js");
-        arr.push("script/cryptojs/core.min.js");
         arr.push([
             "script/jsoneditor/jsoneditor.min.js",
-            "script/cryptojs/sha256.min.js",
-            "script/cryptojs/enc-base64.min.js",
-            "script/cryptojs/aes/hmac.min.js",
-            "script/cryptojs/aes/md5.min.js",
-            "script/cryptojs/aes/sha1.min.js",
         ]);
-        arr.push("script/cryptojs/aes/evpkdf.min.js");
-        arr.push("script/cryptojs/aes/cipher-core.min.js");
-        arr.push("script/cryptojs/aes/mode-ctr.min.js");
-        arr.push("script/cryptojs/aes/aes.min.js");
     })();
     (function () {
-        var tmpPath = null;
+        let tmpPath = null;
         loadNext();
         function loadNext() {
             tmpPath = arr.shift();

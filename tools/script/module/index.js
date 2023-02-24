@@ -11,8 +11,7 @@
             var value = $("textarea[ui_key=input_a]").val().trim();
             var res = null;
             (function(){
-                var byteArr = CryptoJS.enc.Utf8.parse(value);
-                res = url_safe_withoutPadding( CryptoJS.enc.Base64.stringify(byteArr) );
+                res = website.base64_url_encode(value);
             })();
             $("textarea[ui_key=result_a]").val(res);
         });
@@ -32,8 +31,7 @@
             var value = $("textarea[ui_key=input_b]").val().trim();
             var res = null;
             (function(){
-                var byteArr = CryptoJS.enc.Base64.parse( decode_url_safe( value ) );
-                res = byteArr.toString(CryptoJS.enc.Utf8);
+                res = website.base64_url_decode(value);
             })();
             $("textarea[ui_key=result_b]").val(res);
         });
@@ -42,6 +40,7 @@
             return str.replace(/-/g, '+').replace(/_/g, '/');
         }
     })();
+    /*
     (function(){
         $("div[ui_key=btn_c]").on("click", (event)=>{
             (function(){
@@ -57,7 +56,7 @@
             })();
             $("textarea[ui_key=result_c]").val(res);
         });
-    })();
+    })();*/
     (function(){
         $("div[ui_key=btn_d]").on("click", (event)=>{
             (function(){
@@ -111,22 +110,10 @@
             $("textarea[ui_key=result_aes_encrypt]").val("");
             var value = $("textarea[ui_key=input_aes_encrypt]").val().trim();
             var privateKey = $("input[ui_key=aes_encrypt_key]").val().trim();
-            var res = encrypt_AES_256(value, privateKey);
-            $("textarea[ui_key=result_aes_encrypt]").val(res);
+            website.aes_gcm().encrypt_string(value, privateKey).done(function(res){
+                $("textarea[ui_key=result_aes_encrypt]").val(res);
+            });
         });
-        function encrypt_AES_256(content, privateKey) {
-            var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
-            var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
-            var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
-            // var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
-            var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
-            var encrypt = CryptoJS.AES.encrypt(content, key, options);
-            var base64str = url_safe_withoutPadding( encrypt.toString() );
-            return base64str;
-        }
-        function url_safe_withoutPadding(str) {
-            return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
-        }
     })();
     // AES Decrypt
     (function(){
@@ -139,26 +126,14 @@
             $("textarea[ui_key=result_aes_decrypt]").val("");
             var value = $("textarea[ui_key=input_aes_decrypt]").val().trim();
             var privateKey = $("input[ui_key=aes_decrypt_key]").val().trim();
-            var res = decrypt_AES_256(value, privateKey);
-            $("textarea[ui_key=result_aes_decrypt]").val(res);
+            website.aes_gcm().decrypt_string(value, privateKey).done(function(res){
+                $("textarea[ui_key=result_aes_decrypt]").val(res);
+            });
         });
-        function decrypt_AES_256(content, privateKey) {
-            var tmpStr = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex); // SHA-256
-            var key = CryptoJS.enc.Utf8.parse(tmpStr.substr(0, 32)); // 0-32 char
-            var iv = CryptoJS.enc.Utf8.parse(tmpStr.substr(32, 48)); // 32-48, length need 16.
-            // var options = { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
-            var options = { iv: iv, mode: CryptoJS.mode.CTR, padding: CryptoJS.pad.Pkcs7 };
-            var encrypted = decode_url_safe(content);
-            var decrypt = CryptoJS.AES.decrypt(encrypted, key, options);
-            var res = CryptoJS.enc.Utf8.stringify(decrypt);
-            return res;
-        }
-        function decode_url_safe(str) {
-            return str.replace(/-/g, '+').replace(/_/g, '/');
-        }
     })();
     // HmacSHA256
     // https://jsfiddle.net/jStefano/gm7boy2p/
+    /*
     (function(){
         $("div[ui_key=btn_hmac_sha256]").on("click", (event)=>{
             (function(){
@@ -180,6 +155,7 @@
             return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
         }
     })();
+    */
     // Random String Generate
     (function(){
         $("div[ui_key=btn_random_str]").on("click", function(){

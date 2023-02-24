@@ -1,11 +1,10 @@
-// 通用腳本 - modify:2022-10-12
+// 通用腳本 - modify:2023-02-07
 
 // namespace define
 var debug_mode: boolean = true; // for try-catch, scope: ajax
 var website: any = window.website || {};
 var $: any = window.$ || null; // jquery
 var axios: any = window.axios || null;
-var CryptoJS: any = window.CryptoJS || null;
 
 // script loader
 (function(){
@@ -14,7 +13,7 @@ var CryptoJS: any = window.CryptoJS || null;
         // https://developer.mozilla.org/zh-TW/docs/Web/API/Document/readyState
         // https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild
         (function(){
-            var timer: any = null;
+            let timer: any = null;
             // loop check page ready status.
             exec_load_fn();
             // 載入腳本實作
@@ -32,8 +31,8 @@ var CryptoJS: any = window.CryptoJS || null;
     };
     function load_script_fn(script_url: any, ready_fn: any) {
         if(null == ready_fn) ready_fn = function(){}; // if null ready_fn
-        var framework_label = "my_script_loader";
-        var container_div: any = document.querySelector("div[_framework_key="+framework_label+"]");
+        const framework_label = "my_script_loader";
+        let container_div = document.querySelector("div[_framework_key="+framework_label+"]");
         (function(){
             if(null == container_div) {
                 container_div = document.createElement('div');
@@ -43,14 +42,19 @@ var CryptoJS: any = window.CryptoJS || null;
         })();
         // 檢查是否需要同時載入的 script，同時載入以 array 形式帶入
         // 藉由當下計數器與目標計數器達成陣列腳本列表載入狀態確認
-        var catch_count = 0;
-        var target_count = 0;
+        let catch_count = 0;
+        let target_count = 0;
         (function(){
             if(Array.isArray(script_url)) {
                 target_count = script_url.length;
+                // 當為空陣列傳入時終止處理
+                if(0 == target_count) {
+                    ready_fn();
+                    return;
+                }
                 // 當腳本路徑為陣列載入時會以讀取最久的腳本內容作為回應時間點
-                for(var url_index in script_url) {
-                    var url = script_url[url_index];
+                for(let url_index in script_url) {
+                    let url = script_url[url_index];
                     rm_rep_script(url);
                     append_script_tag(url, container_div, catch_script_done, catch_script_fail);
                 }
@@ -71,7 +75,7 @@ var CryptoJS: any = window.CryptoJS || null;
         }
     }
     function append_script_tag(url: any, container_div: any, ready_fn: any, error_fn: any) {
-        var scriptTag = document.createElement('script');
+        let scriptTag = document.createElement('script');
         scriptTag.src = url;
         if(null != ready_fn) scriptTag.onload = ready_fn;
         if(null != error_fn) scriptTag.onerror = error_fn;
@@ -79,18 +83,17 @@ var CryptoJS: any = window.CryptoJS || null;
     }
     // https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll
     // 當重複載入同個 script 路徑則將舊的 tag 刪除
-    var prefix: any = [];
+    let prefix: any = [];
     (function(){
         prefix.push(window.location.protocol);
         prefix.push("//");
         prefix.push(window.location.hostname);
-        prefix.push(window.location.pathname);
     })();
     function rm_rep_script(url: string) {
-        var elems = document.querySelectorAll("script");
-        var chk_str = prefix.join("") + url;
-        for(var i = 0, len = elems.length; i < len; i++) {
-            var elem = elems[i];
+        let elems = document.querySelectorAll("script");
+        let chk_str = prefix.join("") + url;
+        for(let i = 0, len = elems.length; i < len; i++) {
+            let elem = elems[i];
             if(elem.src.includes(chk_str)) {
                 elem.remove();
             }
@@ -101,36 +104,81 @@ var CryptoJS: any = window.CryptoJS || null;
 // 亂數產生器
 (function(){
     website["randomString"] = function(len: any) {
-        var t = "abcdefghijklmnopqrstuvwxyz0123456789";
-        var r = [];
-        var l = 16; // default
-        var tLen = t.length;
+        const t = "abcdefghijklmnopqrstuvwxyz0123456789";
+        let r = [];
+        let l = 16; // default
+        let tLen = t.length;
         if(null != len) l = len;
-        for(var i = 0; i < l; i++) {
-            var c = t.charAt( Math.floor( Math.random() * tLen ) );
+        for(let i = 0; i < l; i++) {
+            const c = t.charAt( Math.floor( Math.random() * tLen ) );
             r.push(c);
         }
         return r.join("");
     };
 })();
 
+// cookie function
+// Cookie -> https://developer.mozilla.org/zh-CN/docs/Web/API/Document/cookie
+// LocalStorage -> https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+(function(){
+    website["cookie"] = {
+        getItem: function(sKey: any) {
+            return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(sKey).replace(/[-.+*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+        },
+        setItem: function(sKey: any, sValue: any, vEnd: any, sPath: any, sDomain: any, bSecure: any) {
+            if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return false; }
+            let sExpires = "";
+            if (vEnd) {
+                switch (vEnd.constructor) {
+                    case Number: { sExpires = vEnd === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd; } break;
+                    case String: { sExpires = "; expires=" + vEnd; } break;
+                    case Date: { sExpires = "; expires=" + vEnd.toUTCString(); } break;
+                }
+            }
+            document.cookie = encodeURIComponent(sKey) + "=" + encodeURIComponent(sValue) + sExpires + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "") + (bSecure ? "; secure" : "");
+            return true;
+        },
+        removeItem: function(sKey: any, sPath: any, sDomain: any) {
+            if (!sKey || !this.hasItem(sKey)) { return false; }
+            document.cookie = encodeURIComponent(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + ( sDomain ? "; domain=" + sDomain : "") + ( sPath ? "; path=" + sPath : "");
+            return true;
+        },
+        hasItem: function(sKey: any) {
+            return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(sKey).replace(/[-.+*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+        },
+        keys: function() { /* optional */
+            const aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+            for (var nIdx = 0; nIdx < aKeys.length; nIdx++) { aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]); }
+            return aKeys;
+        },
+        clear: function() { /* optional */
+            const key_arr = website["cookie"].keys();
+            for(let i = 0, len = key_arr.length; i < len; i++) {
+                const key = key_arr[i];
+                website["cookie"].removeItem(key);
+            }
+        }
+    };
+})();
+
 // axios module
 (function(){
+    // get
     (function(){
         website["get"] = function(reqObj: any) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             if (null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers: any = {};
+            const headers: any = {};
             (function(){
-                var arr = reqObj["header"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
             })();
@@ -139,17 +187,17 @@ var CryptoJS: any = window.CryptoJS || null;
                 def.reject();
                 return;
             }
-            var params = new URLSearchParams();
+            const params = new URLSearchParams();
             (function(){
-                var arr = reqObj["data"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["data"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     params.append(key, value);
                 }
             })();
-            var config = {
+            const config = {
                 transformResponse: [
                     function (data: any) { return data; }
                 ],
@@ -157,7 +205,7 @@ var CryptoJS: any = window.CryptoJS || null;
                 params: params
             };
             axios.get(reqObj["url"], config).then(function(response: any) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -170,47 +218,51 @@ var CryptoJS: any = window.CryptoJS || null;
             return def;
         };
     })();
+    // post - application/x-www-form-urlencoded
     (function(){
         website["post"] = function(reqObj: any) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             if (null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers: any = {};
+            const headers: any = {};
             (function(){
-                var arr = reqObj["header"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
+                (function(){
+                    headers["content-type"] = "application/x-www-form-urlencoded;charset=utf-8";
+                })();
             })();
             if (null != reqObj["data"] && false == Array.isArray(reqObj["data"])) {
                 console.error("data 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var params = new URLSearchParams();
+            const params = new URLSearchParams();
             (function(){
-                var arr = reqObj["data"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["data"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     params.append(key, value);
                 }
             })();
-            var config = {
+            const config = {
                 transformResponse: [
                     function(data: any) { return data; }
                 ],
                 headers: headers
             };
             axios.post(reqObj["url"], params, config).then(function(response: any) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -223,26 +275,30 @@ var CryptoJS: any = window.CryptoJS || null;
             return def;
         };
     })();
+    // post - application/json
     (function(){
         website["post_json"] = function(reqObj: any) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             if (null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers: any = {};
+            const headers: any = {};
             (function () {
-                var arr = reqObj["header"];
-                for (var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for (let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
+                (function(){
+                    headers["content-type"] = "application/json;charset=utf-8";
+                })();
             })();
             axios.post(reqObj["url"], reqObj["text"]).then(function(response: any) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -255,25 +311,28 @@ var CryptoJS: any = window.CryptoJS || null;
             return def;
         };
     })();
-    // ajax - post form-data multipart
+    // post - multipart/form-data
     (function(){
         website["post_form_data"] = function(reqObj: any) {
-            var def = $.Deferred();
+            const def = $.Deferred();
             // req header
             if(null != reqObj["header"] && false == Array.isArray(reqObj["header"])) {
                 console.error("header 參數必須使用 array 型態");
                 def.reject();
                 return;
             }
-            var headers: any = {};
+            const headers: any = {};
             (function(){
-                var arr = reqObj["header"];
-                for(var index in arr) {
-                    var obj = arr[index];
-                    var key = obj["key"];
-                    var value = obj["value"];
+                let arr = reqObj["header"];
+                for(let index in arr) {
+                    let obj = arr[index];
+                    let key = obj["key"];
+                    let value = obj["value"];
                     headers[key] = value;
                 }
+                (function(){
+                    headers["content-type"] = "multipart/form-data";
+                })();
             })();
             // req params
             if(null != reqObj["data"] && false == Array.isArray(reqObj["data"])) {
@@ -281,24 +340,24 @@ var CryptoJS: any = window.CryptoJS || null;
                 def.reject();
                 return;
             }
-            var formData = new FormData();
+            const formData = new FormData();
             (function(){
                 if(null != reqObj["data"]) {
-                    var arr = reqObj["data"];
-                    for(var index in arr) {
-                        var obj = arr[index];
+                    let arr = reqObj["data"];
+                    for(let index in arr) {
+                        let obj = arr[index];
                         formData.append(obj["key"], obj["value"]);
                     }
                 }
             })();
-            var config = {
+            const config = {
                 transformResponse: [function(data: any){ return data; }], // 修正 response 回傳內容格式
                 headers: headers,
                 // maxContentLength: 20000000,
                 onUploadProgress: function(progressEvent: any) {
-                    var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    var percentStr = String(percentCompleted); // percent number
-                    var respObj = {
+                    let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    let percentStr = String(percentCompleted); // percent number
+                    let respObj = {
                         status: "upload_progress",
                         progress_value: percentStr
                     };
@@ -307,7 +366,7 @@ var CryptoJS: any = window.CryptoJS || null;
             };
             // form-data 格式請使用 post method
             axios.post(reqObj["url"], formData, config).then(function(response: any) {
-                var respObj = {
+                let respObj = {
                     status: "done",
                     status_code: response.status,
                     data: response.data
@@ -325,9 +384,9 @@ var CryptoJS: any = window.CryptoJS || null;
 // dialog
 (function(){
     website["dialog"] = function(initObj: any) {
-        var def = $.Deferred();
-        var dialogId = "_dialog_"+website.randomString(16);
-        var dialogElem = $(buildDialogHtml());
+        const def = $.Deferred();
+        const dialogId = "_dialog_"+website.randomString(16);
+        const dialogElem = $(buildDialogHtml());
         (function(){
             dialogElem.attr("modal_dialog_ssid", dialogId);
             dialogElem.css("z-index", "10");
@@ -339,7 +398,7 @@ var CryptoJS: any = window.CryptoJS || null;
         })();
         $("body").append(dialogElem);
         dialogElem.css("display", "flex");
-        var dialogObj = {
+        const dialogObj = {
             dialog: dialogElem.find("div[modal_dialog_key=wrap]"),
             overlay: dialogElem,
             close: function(){
@@ -348,7 +407,7 @@ var CryptoJS: any = window.CryptoJS || null;
         };
         // esc key setting（要配合 tabindex 設定）
         (function(){
-            var enable_esc_key = "true";
+            let enable_esc_key = "true";
             if(null != initObj["escape_key"]) {
                 enable_esc_key = initObj["escape_key"];
             }
@@ -368,7 +427,7 @@ var CryptoJS: any = window.CryptoJS || null;
         return def;
     };
     function buildDialogHtml() {
-        var overlay_elem = $("<div modal_dialog_key='overlay' tabindex='0'></div>");
+        const overlay_elem = $("<div modal_dialog_key='overlay' tabindex='0'></div>");
         (function(){
             overlay_elem.css("display", "none");
             overlay_elem.css("align-items", "stretch");
@@ -381,9 +440,9 @@ var CryptoJS: any = window.CryptoJS || null;
             overlay_elem.css("overflow", "auto");
             overlay_elem.css("backdrop-filter", "blur(1px)"); // 毛玻璃效果
         })();
-        // 藉由 flex 特性，達到內容水平與垂直置中，若高度超過視器高度則啟用 overflow
+        // 藉由 flex 特性，達到水平與垂直置中，若高度超過視器高度則啟用 overflow
         (function(){
-            var wrap_html = [];
+            const wrap_html = [];
             wrap_html.push("<div style='flex: 1;'></div>");
             wrap_html.push("<div style='flex-shrink: 0;display: flex;align-items: stretch;justify-content: stretch;flex-direction: column;'>");
             wrap_html.push("<div style='flex: 1;'></div>");
@@ -401,7 +460,7 @@ var CryptoJS: any = window.CryptoJS || null;
 (function(){
     website["redirect"] = function(url: string, onCache: boolean) {
         if(null == onCache) onCache = true; // GET 預設是快取狀態
-        var targetURL = null;
+        let targetURL = null;
         if(null == url) {
             targetURL = location.protocol + '//' + location.host + location.pathname;
         } else {
@@ -412,38 +471,54 @@ var CryptoJS: any = window.CryptoJS || null;
             location.href = targetURL;
         } else {
             // 藉由參數取消瀏覽器快取機制
-            var ts = Date.now();
+            const ts = Date.now();
             location.href = targetURL + "?ei=" + ts;
         }
     };
 })();
 
-// CryptoJS Base64 - 與原生 "btoa" 差別在於 unicode 的處理支援
+// native javascript base64 url safe
 (function(){
     website["base64_encode"] = function( content: any ) {
         if(null == content) {
             console.error("b64 encode content is null!");
             return null;
         }
-        var byteArr = CryptoJS.enc.Utf8.parse( content );
-        return CryptoJS.enc.Base64.stringify(byteArr);
+        const text_encoder = new TextEncoder();
+        const aMyUTF8Input = text_encoder.encode(content);
+        return base64EncArr(aMyUTF8Input);
     }
     website["base64_url_encode"] = function( content: any ) {
-        var res_str = url_safe_withoutPadding( website["base64_encode"](content) );
-        return res_str;
+        return url_safe_withoutPadding( website["base64_encode"](content) );
     };
     website["base64_decode"] = function( content: any ) {
         if(null == content) {
             console.error("b64 decode content is null!");
             return null;
         }
-        var byteArr = CryptoJS.enc.Base64.parse( decode_url_safe( content ) );
-        var res_str = byteArr.toString(CryptoJS.enc.Utf8);
-        return res_str;
+        const text_decoder = new TextDecoder();
+        const aMyUTF8Output = base64DecToArr(content, 1);
+        return text_decoder.decode(aMyUTF8Output);
     };
     website["base64_url_decode"] = function( content: any ) {
-        return website["base64_decode"](content);
+        return website["base64_decode"](decode_url_safe(content));
     };
+
+    // for byte
+    website["base64_enc_byte"] = function(src_byte: any) {
+        const tmp_arr = new Uint8Array(src_byte);
+        return base64EncArr(tmp_arr);
+    };
+    website["base64_dec_byte"] = function(src_byte: any) {
+        return base64DecToArr(src_byte, 1);
+    };
+    website["base64_url_enc_byte"] = function(src_byte: any) {
+        return url_safe_withoutPadding(website["base64_enc_byte"](src_byte));
+    };
+    website["base64_url_dec_byte"] = function(src_byte: any) {
+        return website["base64_dec_byte"](decode_url_safe(src_byte));
+    };
+
     // https://jsfiddle.net/magikMaker/7bjaT/
     function url_safe_withoutPadding(str: any) {
         return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
@@ -452,6 +527,92 @@ var CryptoJS: any = window.CryptoJS || null;
     function decode_url_safe(str: any) {
         return str.replace(/-/g, '+').replace(/_/g, '/');
     }
+
+    /* Base64 string to array encoding */
+    function uint6ToB64(nUint6: any) {
+        return nUint6 < 26
+            ? nUint6 + 65
+        : nUint6 < 52
+            ? nUint6 + 71
+        : nUint6 < 62
+            ? nUint6 - 4
+        : nUint6 === 62
+            ? 43
+        : nUint6 === 63
+            ? 47
+        : 65;
+    }
+
+    function base64EncArr(aBytes: any) {
+        let nMod3 = 2;
+        let sB64Enc = "";
+
+        const nLen = aBytes.length;
+        let nUint24 = 0;
+        for (let nIdx = 0; nIdx < nLen; nIdx++) {
+            nMod3 = nIdx % 3;
+            if (nIdx > 0 && ((nIdx * 4) / 3) % 76 === 0) {
+                // sB64Enc += "\r\n";
+            }
+            nUint24 |= aBytes[nIdx] << ((16 >>> nMod3) & 24);
+            if (nMod3 === 2 || aBytes.length - nIdx === 1) {
+                sB64Enc += String.fromCodePoint(
+                    uint6ToB64((nUint24 >>> 18) & 63),
+                    uint6ToB64((nUint24 >>> 12) & 63),
+                    uint6ToB64((nUint24 >>> 6) & 63),
+                    uint6ToB64(nUint24 & 63)
+                );
+                nUint24 = 0;
+            }
+        }
+        return ( sB64Enc.substring(0, sB64Enc.length - 2 + nMod3) + (nMod3 === 2 ? "" : nMod3 === 1 ? "=" : "==") );
+    }
+
+    // Array of bytes to Base64 string decoding
+    function b64ToUint6(nChr: any) {
+        return nChr > 64 && nChr < 91
+            ? nChr - 65
+        : nChr > 96 && nChr < 123
+            ? nChr - 71
+        : nChr > 47 && nChr < 58
+            ? nChr + 4
+        : nChr === 43
+            ? 62
+        : nChr === 47
+            ? 63
+        : 0;
+    }
+
+    // nBlocksSize -> 1 = utf-8
+    function base64DecToArr(sBase64: any, nBlocksSize: any) {
+        const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, "");
+        const nInLen = sB64Enc.length;
+        const nOutLen = nBlocksSize
+        ? Math.ceil(((nInLen * 3 + 1) >> 2) / nBlocksSize) * nBlocksSize
+        : (nInLen * 3 + 1) >> 2;
+        const taBytes = new Uint8Array(nOutLen);
+
+        let nMod3;
+        let nMod4;
+        let nUint24 = 0;
+        let nOutIdx = 0;
+        for (let nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+            nMod4 = nInIdx & 3;
+            nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << (6 * (3 - nMod4));
+            if (nMod4 === 3 || nInLen - nInIdx === 1) {
+                nMod3 = 0;
+                while (nMod3 < 3 && nOutIdx < nOutLen) {
+                    taBytes[nOutIdx] = (nUint24 >>> ((16 >>> nMod3) & 24)) & 255;
+                    nMod3++;
+                    nOutIdx++;
+                }
+                nUint24 = 0;
+            }
+        }
+
+        return taBytes;
+    }
+
 })();
 
 // number format currency style
@@ -562,5 +723,134 @@ var CryptoJS: any = window.CryptoJS || null;
 (function(){
     website["replace_all"] = function(str: any, scan_str: any, fix_str: any) {
         return str.split(scan_str).join(fix_str);
+    };
+})();
+
+// AES GCM
+(function(){
+    website["aes_gcm"] = function(){
+        // byte encode, decode
+        const text_encoder = new TextEncoder();
+        const text_decoder = new TextDecoder("UTF-8");
+
+        function build_aes_key(key_byte: any) {
+            const def = $.Deferred();
+            // importKey(format, keyData, algorithm, extractable, keyUsages)
+            crypto.subtle.importKey (
+                "raw",
+                key_byte,
+                "aes-gcm",
+                false,
+                ["encrypt","decrypt"]
+            ).then(function(key) {
+                def.resolve(key);
+            }, function(e){
+                console.log(e.message);
+                def.reject(e);
+            });
+            return def;
+        }
+
+        // key 長度會影響 gcm-128 或 gcm-256 結果
+        // An 8 bit array with 16 elements = 128 bits.
+        // An 8 bit array with 32 elements = 256 bits.
+        // 將明文密鑰經由自定義流程建立流程創建鑰匙組（private_key+iv）
+        function build_key_pair(plain_text: any) {
+            const def = $.Deferred();
+            (function(){
+                const res = { key: "", key_byte: new ArrayBuffer(1), iv: "", iv_byte: new ArrayBuffer(1) };
+                stringToSha256(plain_text).done(function(hash_str: any){
+                    const key_str = hash_str.substr(0, 32); // 16 or 32
+                    const key_byte = text_encoder.encode(key_str);
+                    res["key"] = key_str;
+                    res["key_byte"] = key_byte;
+                    stringToSha256(hash_str).done(function(iv_str: any){
+                        const iv_byte = text_encoder.encode(iv_str);
+                        res["iv"] = iv_str;
+                        res["iv_byte"] = iv_byte;
+                        def.resolve(res);
+                    });
+                });
+            })();
+            return def;
+        }
+
+        // PlainText to SHA256
+        function stringToSha256(plainText: any) {
+            const def = $.Deferred();
+            const textAsBuffer = new TextEncoder().encode(plainText);
+            const hashBuffer = window.crypto.subtle.digest('SHA-256', textAsBuffer);
+            hashBuffer.then(function(hash_byte){
+                const hashArray = Array.from(new Uint8Array(hash_byte));
+                const digest = hashArray.map(b => padStart(b.toString(16), 2, '0')).join('');
+                def.resolve(digest);
+            }, function(e){
+                console.log(e);
+                def.reject(e);
+            });
+            // String.prototype.padStart 相容
+            // https://www.freecodecamp.org/news/how-does-string-padstart-actually-work-abba34d982e/
+            function padStart(str: any, targetLength: any, padString: any) {
+                // floor if number of convert non-number to 0;
+                targetLength = targetLength >> 0;
+                padString = String(padString || ' ');
+                if(str.length > targetLength) {
+                    return String(str);
+                } else {
+                    targetLength = targetLength - str.length;
+                    if(targetLength > padStart.length) {
+                        // append to original to ensure we are longer than needed
+                        padString += padString.repeat(targetLength / padString.length);
+                    }
+                    return padString.slice(0, targetLength) + String(str);
+                }
+            }
+            return def;
+        }
+
+        // public call functions
+        return {
+            encrypt_string: function(plain_text: any, private_key: any) {
+                const def = $.Deferred();
+                build_key_pair(private_key).done(function(key_pair: any){
+                    build_aes_key(key_pair.key_byte).done(function(aes_key: any){
+                        const data_byte = text_encoder.encode(plain_text);
+                        const enc_def = crypto.subtle.encrypt({name: "aes-gcm", iv: key_pair.iv_byte}, aes_key, data_byte);
+                        enc_def.then(function(enc_byte){
+                            const b64_enc_str = website["base64_url_enc_byte"](enc_byte);
+                            def.resolve(b64_enc_str);
+                        }, function(e){
+                            console.log("aes_exception: " + e.message);
+                            def.reject(e);
+                        });
+                    });
+                });
+                return def;
+            },
+            decrypt_string: function(b64_enc_str: any, private_key: any) {
+                const def = $.Deferred();
+                build_key_pair(private_key).done(function(key_pair: any){
+                    build_aes_key(key_pair.key_byte).done(function(aes_key: any){
+                        const enc_byte = website["base64_url_dec_byte"](b64_enc_str);
+                        const dec_def = crypto.subtle.decrypt({name: "aes-gcm", iv: key_pair.iv_byte}, aes_key, enc_byte);
+                        dec_def.then(function(dec_byte){
+                            const dec_str = text_decoder.decode(dec_byte);
+                            def.resolve(dec_str);
+                        }, function(e){
+                            console.log("aes_exception: " + e.message);
+                            def.reject(e);
+                        });
+                    });
+                });
+                return def;
+            },
+            get_iv: function(private_key: any) {
+                const def = $.Deferred();
+                build_key_pair(private_key).done(function(key_pair: any){
+                    def.resolve(key_pair.iv);
+                });
+                return def;
+            }
+        };
     };
 })();

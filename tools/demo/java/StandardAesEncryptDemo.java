@@ -1,112 +1,84 @@
-package tools;
+package app.encrypt;
 
+import framework.hash.HashServiceStatic;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.AlgorithmParameters;
 import java.security.Key;
-import java.security.MessageDigest;
 import java.security.Security;
 import java.util.Base64;
-import java.util.Formatter;
 
 /**
- * https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
- * https://cdnjs.com/libraries/crypto-js
- *
- * http://www.appblog.cn/2019/06/29/%E5%89%8D%E7%AB%AF%20crypto-js%20AES%20%E5%8A%A0%E8%A7%A3%E5%AF%86/
- * https://moln.site/2018/06/22/crypto-js-aes-usage.html
- * https://my.oschina.net/leaforbook/blog/1808360
- * http://ijecorp.blogspot.com/2013/08/python-m2crypto-aes-encrypt-decrypt.html
- * https://stackoverflow.com/questions/36909746/aes-ctr-encrypt-in-go-and-decrypt-in-cryptojs
- * https://crypto.stackexchange.com/questions/19280/is-there-any-area-where-aes-cbc-cannot-be-used-if-so-why
- * https://morris821028.github.io/2015/03/21/security-block-ciphers/
- * 由以上參考資料擷取多處程式碼與原理撰寫
- *
- * 191023
- * 技術選型 AES-256-CTR 標準實作範例
- * 明碼 key 將由 SHA-256 拆分前後段作為 key 與 iv 值
- * （一）AES 是 Rijndael 加密的簡化版本，所以較完整的密鑰位元數只能使用在 Rijndael 之上（關係釐清）
- * （二）選擇 Cipher 為 CTR，因為支援各區塊獨立加解密更相容於多核心的執行環境（CBC 僅解密區塊可獨立執行）
- * （三）要注意 AES 加密都是針對 byte 運作，所以實際操作時都是由 byte[] 去作為值
+ * modify: 2023-01-10
+ * AES-GCM
+ * https://github.com/bcgit/bc-java/blob/master/prov/src/test/java/org/bouncycastle/jce/provider/test/AESTest.java
+ * -
+ * 通常於 CTR, GCM 模式中會要求 IV 是持續變動的，
+ * 此方式弱化 IV 但帶來方便性，可以公開 IV 值傳遞，作為非對稱加密的方式使用，
+ * 不需要取得 key 值是因為真正的私鑰就是你輸入的 private_key 那組文字，
+ * 而創建 AES-GCM 的過程金鑰是由其 SHA-256 衍生出 key, iv
  */
-public class StandardAesEncryptDemo {
+public class AesGcm {
 
-    public StandardAesEncryptDemo() {
-        Security.addProvider(new BouncyCastleProvider()); // for AES use
+    public AesGcm() {
+        Security.addProvider(new BouncyCastleProvider()); // provider
     }
 
-    public String encryptString(String content, String privateKey) {
-        Security.addProvider(new BouncyCastleProvider());
-        String tmpStr = stringToSHA256(privateKey);
-        String key = tmpStr.substring(0, 32);
-        String iv = tmpStr.substring(32, 48);
-        String res = null;
-        try {
-            res = encrypt(content, key, iv);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return res;
+    public String encrypt_string(String plain_text, String private_key) throws Exception {
+        KeyPair keyPair = build_key_pair(private_key);
+        return encrypt(plain_text, keyPair.key, keyPair.iv);
     }
 
-    public String decryptString(String base64str, String privateKey) {
-        Security.addProvider(new BouncyCastleProvider());
-        String tmpStr = stringToSHA256(privateKey);
-        String key = tmpStr.substring(0, 32);
-        String iv = tmpStr.substring(32, 48);
-        String res = null;
-        try {
-            res = decrypt(base64str, key, iv);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return res;
+    public String decrypt_string(String b64_enc_str, String private_key) throws Exception {
+        KeyPair keyPair = build_key_pair(private_key);
+        return decrypt(b64_enc_str, keyPair.key, keyPair.iv);
     }
 
-    private static String encrypt(String data, String privateKey, String iv) throws Exception {
-
-        byte[] dataByte = data.getBytes(StandardCharsets.UTF_8);
-        byte[] keyByte = privateKey.getBytes(StandardCharsets.UTF_8);
-        byte[] ivByte = iv.getBytes(StandardCharsets.UTF_8);
-
-        String encryptBase64str;
-
-        // Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");
-        Cipher cipher = Cipher.getInstance("AES/CTR/PKCS7Padding","BC");
-        Key sKeySpec = new SecretKeySpec(keyByte, "AES");
-        AlgorithmParameters params = AlgorithmParameters.getInstance("AES");
-        params.init(new IvParameterSpec(ivByte));
-        cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, params);
-
-        byte[] result = cipher.doFinal(dataByte);
-        encryptBase64str = Base64.getUrlEncoder().withoutPadding().encodeToString(result);
-
-        return encryptBase64str;
+    public String get_iv(String private_key) {
+        KeyPair keyPair = build_key_pair(private_key);
+        return keyPair.iv;
     }
 
-    private static String decrypt(String encryptBase64str, String privateKey, String iv) throws Exception {
+    private static String encrypt(String plain_text, String privateKey, String iv) throws Exception {
+        byte[] data_byte = plain_text.getBytes(StandardCharsets.UTF_8);
+        byte[] key_byte = privateKey.getBytes(StandardCharsets.UTF_8);
+        byte[] iv_byte = iv.getBytes(StandardCharsets.UTF_8);
+        Key aes_key = new SecretKeySpec(key_byte, "AES");
+        // encrypt
+        Cipher in = Cipher.getInstance("AES/GCM/NoPadding", "BC");
+        in.init(Cipher.ENCRYPT_MODE, aes_key, new IvParameterSpec(iv_byte));
+        byte[] enc_byte = in.doFinal(data_byte);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(enc_byte);
+    }
 
-        byte[] dataByte = Base64.getUrlDecoder().decode(encryptBase64str); // base64str to byte
-        byte[] keyByte = privateKey.getBytes(StandardCharsets.UTF_8);
-        byte[] ivByte = iv.getBytes(StandardCharsets.UTF_8);
+    private static String decrypt(String b64_enc_text, String privateKey, String iv) throws Exception {
+        // byte[] data_byte = data.getBytes(StandardCharsets.UTF_8);
+        byte[] key_byte = privateKey.getBytes(StandardCharsets.UTF_8);
+        byte[] iv_byte = iv.getBytes(StandardCharsets.UTF_8);
+        Key aes_key = new SecretKeySpec(key_byte, "AES");
+        // decrypt
+        Cipher out = Cipher.getInstance("AES/GCM/NoPadding", "BC");
+        out.init(Cipher.DECRYPT_MODE, aes_key, new IvParameterSpec(iv_byte));
+        byte[] data_byte = Base64.getUrlDecoder().decode(b64_enc_text);
+        byte[] dec_byte = out.doFinal(data_byte);
+        return new String(dec_byte, StandardCharsets.UTF_8);
+    }
 
-        String decryptStr;
+    // 以自定義的方式建立金鑰組
+    private KeyPair build_key_pair(String plain_text) {
+        String key_hash_256 = stringToSHA256(plain_text);
+        KeyPair keyPair = new KeyPair();
+        keyPair.key = key_hash_256.substring(0, 32);
+        keyPair.iv = stringToSHA256(key_hash_256); // double hash
+        return keyPair;
+    }
 
-        // Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");
-        Cipher cipher = Cipher.getInstance("AES/CTR/PKCS7Padding","BC");
-        Key sKeySpec = new SecretKeySpec(keyByte, "AES");
-        AlgorithmParameters params = AlgorithmParameters.getInstance("AES");
-        params.init(new IvParameterSpec(ivByte));
-        cipher.init(Cipher.DECRYPT_MODE, sKeySpec, params);
-
-        byte[] result = cipher.doFinal(dataByte);
-        decryptStr = new String(result);
-
-        return decryptStr;
+    class KeyPair {
+        String key = null;
+        String iv = null;
     }
 
     private String stringToSHA256(String content) {
@@ -130,6 +102,9 @@ public class StandardAesEncryptDemo {
         return result;
     }
 
+    /**
+     * 雜湊碼 byte[] 轉換為 string 的通用方法
+     */
     private String byteToHex(byte[] hash) {
         Formatter formatter = new Formatter();
         for ( byte b : hash ) { formatter.format("%02x", b); }
